@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS user (
   full_name VARCHAR(50) NOT NULL,
   email VARCHAR(255) NOT NULL,
   profile_picture VARCHAR(255) NOT NULL,
-  rating INT NOT NULL, -- https://metanit.com/sql/sqlserver/12.1.php#:~:text=%D0%A2%D1%80%D0%B8%D0%B3%D0%B3%D0%B5%D1%80%D1%8B%20%D0%BF%D1%80%D0%B5%D0%B4%D1%81%D1%82%D0%B0%D0%B2%D0%BB%D1%8F%D1%8E%D1%82%20%D1%81%D0%BF%D0%B5%D1%86%D0%B8%D0%B0%D0%BB%D1%8C%D0%BD%D1%8B%D0%B9%20%D1%82%D0%B8%D0%BF%20%D1%85%D1%80%D0%B0%D0%BD%D0%B8%D0%BC%D0%BE%D0%B9,%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%20INSERT%2C%20UPDATE%2C%20DELETE.
+  rating INT DEFAULT 0 NOT NULL, -- https://metanit.com/sql/sqlserver/12.1.php#:~:text=%D0%A2%D1%80%D0%B8%D0%B3%D0%B3%D0%B5%D1%80%D1%8B%20%D0%BF%D1%80%D0%B5%D0%B4%D1%81%D1%82%D0%B0%D0%B2%D0%BB%D1%8F%D1%8E%D1%82%20%D1%81%D0%BF%D0%B5%D1%86%D0%B8%D0%B0%D0%BB%D1%8C%D0%BD%D1%8B%D0%B9%20%D1%82%D0%B8%D0%BF%20%D1%85%D1%80%D0%B0%D0%BD%D0%B8%D0%BC%D0%BE%D0%B9,%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%20INSERT%2C%20UPDATE%2C%20DELETE.
   role ENUM('user', 'admin') DEFAULT 'user' NOT NULL
 );
 
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS post (
   id INT AUTO_INCREMENT PRIMARY KEY, -- id INT AUTO_INCREMENT PRIMARY KEY
   author INT NOT NULL,
   title VARCHAR(100) NOT NULL, -- ?? size
-  publish_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL, -- https://dev.mysql.com/doc/refman/8.0/en/timestamp-initialization.html
+  publish_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL, -- ??DATETIME https://dev.mysql.com/doc/refman/8.0/en/timestamp-initialization.html
   status ENUM('active', 'inactive') DEFAULT 'active',
   content VARCHAR(5000), -- ?? type size
   -- ??categories
@@ -81,3 +81,263 @@ CREATE TABLE IF NOT EXISTS comment_likes (
   FOREIGN KEY (comment_id) REFERENCES comment(id) ON DELETE CASCADE,
   FOREIGN KEY (like_id) REFERENCES like_entity(id) ON DELETE CASCADE
 );
+
+DELIMITER //
+CREATE PROCEDURE IF NOT EXISTS calcUserPostsRating (
+  IN authorId INT,
+  OUT postsRating INT
+)
+BEGIN
+  DECLARE likes INT;
+  DECLARE dislikes INT;
+
+  SELECT
+    COUNT(*)
+  INTO
+    likes
+  FROM 
+    post_likes pl
+    INNER JOIN post p ON p.id = pl.post_id
+    INNER JOIN like_entity le ON le.id = pl.like_id
+  WHERE
+    p.author = authorId AND le.type = 'like';
+
+  SELECT
+    COUNT(*)
+  INTO
+    dislikes
+  FROM 
+    post_likes pl
+    INNER JOIN post p ON p.id = pl.post_id
+    INNER JOIN like_entity le ON le.id = pl.like_id
+  WHERE
+    p.author = authorId AND le.type = 'dislike';
+
+  SET postsRating = likes - dislikes;
+END;
+//
+DELIMITER ;
+
+DELIMITER //
+CREATE PROCEDURE IF NOT EXISTS calcUserCommentsRating(
+  IN authorId INT,
+  OUT commentsRating INT
+)
+BEGIN
+  DECLARE likes, dislikes INT;
+
+  SELECT
+    COUNT(*)
+  INTO
+    likes
+  FROM 
+    comment_likes cl
+    INNER JOIN comment c ON c.id = cl.comment_id
+    INNER JOIN like_entity le ON le.id = cl.like_id
+  WHERE
+    c.author = authorId AND le.type = 'like';
+
+  SELECT
+    COUNT(*)
+  INTO
+    dislikes
+  FROM 
+    comment_likes cl
+    INNER JOIN comment c ON c.id = cl.comment_id
+    INNER JOIN like_entity le ON le.id = cl.like_id
+  WHERE
+    c.author = authorId AND le.type = 'dislike';
+
+  SET commentsRating = likes - dislikes;
+END
+//
+DELIMITER ;
+
+
+-- DELIMITER //
+-- CREATE TRIGGER IF NOT EXISTS user_calc_rating
+-- AFTER INSERT
+-- ON post_likes FOR EACH ROW
+-- BEGIN
+--   DECLARE likeId, authorId, postsRating, commentsRating INT;
+
+--   -- IF NEW THEN
+--   --   SET likeId = NEW.like_id;
+--   -- ELSE
+--   --   SET likeId = OLD.like_id
+--   -- END IF;
+
+--   SELECT
+--     author
+--   INTO
+--     authorId
+--   FROM
+--     like_entity
+--   WHERE
+--     id = NEW.post_id;
+
+--   -- SET authorId = (SELECT author FROM like_entity WHERE id = likeId);
+--   -- SET authorId = (SELECT author FROM like_entity WHERE id = NEW.like_id);
+--   -- SET authorId = (SELECT Id FROM inserted);
+
+--   CALL calcUserPostsRating(authorId, postsRating);
+--   CALL calcUserCommentsRating(authorId, commentssRating);
+
+--   -- UPDATE user
+--   -- SET rating = postsRating + commentsRating
+--   -- WHERE
+--   --   id = authorId;
+
+--   UPDATE user
+--   SET rating = 10
+--   WHERE
+--     id = authorId;
+  
+-- END
+-- //
+-- DELIMITER ;
+
+
+-- DELIMITER //
+-- CREATE TRIGGER IF NOT EXISTS user_calc_rating
+-- AFTER INSERT
+-- ON post_likes FOR EACH ROW
+-- BEGIN
+--   DECLARE likes, dislikes, authorId, postsRating, commentsRating INT;
+
+--   -- IF NEW THEN
+--   --   SET likeId = NEW.like_id;
+--   -- ELSE
+--   --   SET likeId = OLD.like_id
+--   -- END IF;
+
+--   SELECT
+--     author
+--   INTO
+--     authorId
+--   FROM
+--     post
+--   WHERE
+--     id = NEW.post_id;
+
+--   SELECT
+--     COUNT(*)
+--   INTO
+--     likes
+--   FROM 
+--     post_likes pl
+--     INNER JOIN post p ON p.id = pl.post_id
+--     INNER JOIN like_entity le ON le.id = pl.like_id
+--   WHERE
+--     p.author = authorId AND le.type = 'like';
+
+--   SELECT
+--     COUNT(*)
+--   INTO
+--     dislikes
+--   FROM 
+--     post_likes pl
+--     INNER JOIN post p ON p.id = pl.post_id
+--     INNER JOIN like_entity le ON le.id = pl.like_id
+--   WHERE
+--     p.author = authorId AND le.type = 'dislike';
+
+--   -- SET postsRating = likes - dislikes;
+
+--   UPDATE user
+--   SET rating = likes - dislikes
+--   WHERE
+--     id = authorId;
+  
+-- END
+-- //
+-- DELIMITER ;
+
+-- delete rating--
+-- insert rating++
+
+DELIMITER //
+CREATE TRIGGER IF NOT EXISTS after_post_likes_insert
+AFTER INSERT
+ON post_likes FOR EACH ROW
+BEGIN
+  DECLARE newRating, authorId INT;
+  DECLARE likeType VARCHAR(10);
+
+  SET likeType = (SELECT type FROM like_entity WHERE id = NEW.like_id);
+  SET authorId = (SELECT author FROM post WHERE id = NEW.post_id);
+  SET newRating = (SELECT rating FROM user WHERE id = authorId);
+
+  CASE likeType
+    WHEN 'like' THEN
+      SET newRating = newRating + 1;
+    WHEN 'dislike' THEN
+      SET newRating = newRating - 1;
+  END CASE;
+
+  UPDATE user
+  SET rating = newRating
+  WHERE
+    id = authorId;
+  
+END
+//
+DELIMITER ;
+
+DELIMITER //
+CREATE TRIGGER IF NOT EXISTS after_post_likes_update
+AFTER UPDATE
+ON post_likes FOR EACH ROW
+BEGIN
+  DECLARE newRating, authorId INT;
+  DECLARE likeType VARCHAR(10);
+
+  SET likeType = (SELECT type FROM like_entity WHERE id = NEW.like_id);
+  SET authorId = (SELECT author FROM post WHERE id = NEW.post_id);
+  SET newRating = (SELECT rating FROM user WHERE id = authorId);
+  -- можливо додати перевірку попередніх занчень в OLD щоб уникнути  OLD = 'like' & NEW = 'like'
+  -- post_likes тип в цый таблицы не змынюеться а лише в like_entity отже update не працює
+
+  CASE likeType
+    WHEN 'like' THEN
+      SET newRating = newRating + 2;
+    WHEN 'dislike' THEN
+      SET newRating = newRating - 2;
+  END CASE;
+
+  UPDATE user
+  SET rating = newRating
+  WHERE
+    id = authorId;
+  
+END
+//
+DELIMITER ;
+
+DELIMITER //
+CREATE TRIGGER IF NOT EXISTS after_post_likes_delete
+AFTER DELETE
+ON post_likes FOR EACH ROW
+BEGIN
+  DECLARE newRating, authorId INT;
+  DECLARE likeType VARCHAR(10);
+
+  SET likeType = (SELECT type FROM like_entity WHERE id = OLD.like_id);
+  SET authorId = (SELECT author FROM post WHERE id = OLD.post_id);
+  SET newRating = (SELECT rating FROM user WHERE id = authorId);
+
+  CASE likeType
+    WHEN 'like' THEN
+      SET newRating = newRating - 1;
+    WHEN 'dislike' THEN
+      SET newRating = newRating + 1;
+  END CASE;
+
+  UPDATE user
+  SET rating = newRating
+  WHERE
+    id = authorId;
+  
+END
+//
+DELIMITER ;
