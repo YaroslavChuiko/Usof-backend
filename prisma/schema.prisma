@@ -8,17 +8,18 @@ datasource db {
 }
 
 model category {
-  title           String            @id @db.VarChar(30)
+  id              Int               @id @default(autoincrement())
+  title           String?           @unique(map: "title") @db.VarChar(30)
   description     String            @db.VarChar(100)
   post_categories post_categories[]
 }
 
 model comment {
   id            Int             @id @default(autoincrement())
-  author        Int
+  author        String          @db.VarChar(30)
   publish_date  DateTime        @default(now()) @db.Timestamp(0)
   content       String          @db.VarChar(1000)
-  user          user            @relation(fields: [author], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "comment_ibfk_1")
+  user          user            @relation(fields: [author], references: [login], onDelete: Cascade, onUpdate: NoAction, map: "comment_ibfk_1")
   comment_likes comment_likes[]
   post_comments post_comments[]
 
@@ -37,11 +38,10 @@ model comment_likes {
 
 model like_entity {
   id            Int              @id @default(autoincrement())
-  author        Int
+  author        String           @db.VarChar(30)
   publish_date  DateTime         @default(now()) @db.Timestamp(0)
-  target_id     Int
   type          like_entity_type @default(like)
-  user          user             @relation(fields: [author], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "like_entity_ibfk_1")
+  user          user             @relation(fields: [author], references: [login], onDelete: NoAction, onUpdate: NoAction, map: "like_entity_ibfk_1")
   comment_likes comment_likes[]
   post_likes    post_likes[]
 
@@ -50,12 +50,12 @@ model like_entity {
 
 model post {
   id              Int               @id @default(autoincrement())
-  author          Int
+  author          String            @db.VarChar(30)
   title           String            @db.VarChar(100)
   publish_date    DateTime          @default(now()) @db.Timestamp(0)
   status          post_status?      @default(active)
   content         String?           @db.VarChar(5000)
-  user            user              @relation(fields: [author], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "post_ibfk_1")
+  user            user              @relation(fields: [author], references: [login], onDelete: Cascade, onUpdate: NoAction, map: "post_ibfk_1")
   post_categories post_categories[]
   post_comments   post_comments[]
   post_likes      post_likes[]
@@ -64,13 +64,13 @@ model post {
 }
 
 model post_categories {
-  post_id                            Int
-  category                           String   @db.VarChar(30)
-  post                               post     @relation(fields: [post_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "post_categories_ibfk_1")
-  category_categoryTopost_categories category @relation(fields: [category], references: [title], onDelete: Cascade, onUpdate: NoAction, map: "post_categories_ibfk_2")
+  post_id     Int
+  category_id Int
+  post        post     @relation(fields: [post_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "post_categories_ibfk_1")
+  category    category @relation(fields: [category_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "post_categories_ibfk_2")
 
-  @@id([post_id, category])
-  @@index([category], map: "category")
+  @@id([post_id, category_id])
+  @@index([category_id], map: "category_id")
 }
 
 model post_comments {
@@ -95,12 +95,12 @@ model post_likes {
 
 model user {
   id              Int           @id @default(autoincrement())
-  loign           String        @unique(map: "loign") @db.VarChar(30)
+  login           String        @unique(map: "login") @db.VarChar(30)
   password        String        @db.Char(60)
   full_name       String        @db.VarChar(50)
   email           String        @db.VarChar(255)
   profile_picture String        @db.VarChar(255)
-  rating          Int
+  rating          Int           @default(0)
   role            user_role     @default(user)
   comment         comment[]
   like_entity     like_entity[]
