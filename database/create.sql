@@ -7,7 +7,7 @@ USE usof;
 
 CREATE TABLE IF NOT EXISTS user (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  loign VARCHAR(30) UNIQUE NOT NULL,
+  login VARCHAR(30) UNIQUE NOT NULL,
   password CHAR(60) NOT NULL,
   full_name VARCHAR(50) NOT NULL,
   email VARCHAR(255) NOT NULL,
@@ -18,21 +18,25 @@ CREATE TABLE IF NOT EXISTS user (
 
 CREATE TABLE IF NOT EXISTS post (
   id INT AUTO_INCREMENT PRIMARY KEY, -- id INT AUTO_INCREMENT PRIMARY KEY
-  author INT NOT NULL,
+  -- author INT NOT NULL,
+  author VARCHAR(30) NOT NULL,
   title VARCHAR(100) NOT NULL, -- ?? size
   publish_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL, -- ??DATETIME https://dev.mysql.com/doc/refman/8.0/en/timestamp-initialization.html
   status ENUM('active', 'inactive') DEFAULT 'active',
   content VARCHAR(5000), -- ?? type size
   -- ??categories
-  FOREIGN KEY (author) REFERENCES user(id) ON DELETE CASCADE
+  -- FOREIGN KEY (author) REFERENCES user(id) ON DELETE CASCADE
+  FOREIGN KEY (author) REFERENCES user(login) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS comment (
   id INT AUTO_INCREMENT PRIMARY KEY, -- ??
-  author INT NOT NULL,
+  -- author INT NOT NULL,
+  author VARCHAR(30) NOT NULL,
   publish_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
   content VARCHAR(1000) NOT NULL, -- ??type size
-  FOREIGN KEY (author) REFERENCES user(id) ON DELETE CASCADE
+  -- FOREIGN KEY (author) REFERENCES user(id) ON DELETE CASCADE
+  FOREIGN KEY (author) REFERENCES user(login) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS post_comments (
@@ -44,25 +48,27 @@ CREATE TABLE IF NOT EXISTS post_comments (
 );
 
 CREATE TABLE IF NOT EXISTS category (
-  -- id INT AUTO_INCREMENT PRIMARY KEY,
-  title VARCHAR(30) PRIMARY KEY,
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  title VARCHAR(30) UNIQUE,
   description VARCHAR(100) NOT NULL -- ?? size
 );
 
 CREATE TABLE IF NOT EXISTS post_categories (
   post_id INT NOT NULL,
-  category VARCHAR(30) NOT NULL,
-  PRIMARY KEY(post_id, category), -- ?? 
+  category_id INT NOT NULL,
+  PRIMARY KEY(post_id, category_id), -- ?? 
   FOREIGN KEY (post_id) REFERENCES post(id) ON DELETE CASCADE,
-  FOREIGN KEY (category) REFERENCES category(title) ON DELETE CASCADE
+  FOREIGN KEY (category_id) REFERENCES category(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS like_entity (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  author INT NOT NULL,
-  FOREIGN KEY (author) REFERENCES user(id),
+  -- author INT NOT NULL,
+  author VARCHAR(30) NOT NULL,
+  -- FOREIGN KEY (author) REFERENCES user(id),
+  FOREIGN KEY (author) REFERENCES user(login),
   publish_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  target_id INT NOT NULL, -- post/comment id -- ?? https://stackoverflow.com/questions/8112831/implementing-comments-and-likes-in-database
+  -- target_id INT NOT NULL, -- post/comment id -- ?? https://stackoverflow.com/questions/8112831/implementing-comments-and-likes-in-database
   type ENUM('like', 'dislike') DEFAULT 'like' NOT NULL
 );
 
@@ -81,77 +87,6 @@ CREATE TABLE IF NOT EXISTS comment_likes (
   FOREIGN KEY (comment_id) REFERENCES comment(id) ON DELETE CASCADE,
   FOREIGN KEY (like_id) REFERENCES like_entity(id) ON DELETE CASCADE
 );
-
-DELIMITER //
-CREATE PROCEDURE IF NOT EXISTS calcUserPostsRating (
-  IN authorId INT,
-  OUT postsRating INT
-)
-BEGIN
-  DECLARE likes INT;
-  DECLARE dislikes INT;
-
-  SELECT
-    COUNT(*)
-  INTO
-    likes
-  FROM 
-    post_likes pl
-    INNER JOIN post p ON p.id = pl.post_id
-    INNER JOIN like_entity le ON le.id = pl.like_id
-  WHERE
-    p.author = authorId AND le.type = 'like';
-
-  SELECT
-    COUNT(*)
-  INTO
-    dislikes
-  FROM 
-    post_likes pl
-    INNER JOIN post p ON p.id = pl.post_id
-    INNER JOIN like_entity le ON le.id = pl.like_id
-  WHERE
-    p.author = authorId AND le.type = 'dislike';
-
-  SET postsRating = likes - dislikes;
-END;
-//
-DELIMITER ;
-
-DELIMITER //
-CREATE PROCEDURE IF NOT EXISTS calcUserCommentsRating(
-  IN authorId INT,
-  OUT commentsRating INT
-)
-BEGIN
-  DECLARE likes, dislikes INT;
-
-  SELECT
-    COUNT(*)
-  INTO
-    likes
-  FROM 
-    comment_likes cl
-    INNER JOIN comment c ON c.id = cl.comment_id
-    INNER JOIN like_entity le ON le.id = cl.like_id
-  WHERE
-    c.author = authorId AND le.type = 'like';
-
-  SELECT
-    COUNT(*)
-  INTO
-    dislikes
-  FROM 
-    comment_likes cl
-    INNER JOIN comment c ON c.id = cl.comment_id
-    INNER JOIN like_entity le ON le.id = cl.like_id
-  WHERE
-    c.author = authorId AND le.type = 'dislike';
-
-  SET commentsRating = likes - dislikes;
-END
-//
-DELIMITER ;
 
 
 -- DELIMITER //
@@ -261,12 +196,13 @@ CREATE TRIGGER IF NOT EXISTS after_post_likes_insert
 AFTER INSERT
 ON post_likes FOR EACH ROW
 BEGIN
-  DECLARE newRating, authorId INT;
+  DECLARE newRating INT;
+  DECLARE authorLogin VARCHAR(30);
   DECLARE likeType VARCHAR(10);
 
   SET likeType = (SELECT type FROM like_entity WHERE id = NEW.like_id);
-  SET authorId = (SELECT author FROM post WHERE id = NEW.post_id);
-  SET newRating = (SELECT rating FROM user WHERE id = authorId);
+  SET authorLogin = (SELECT author FROM post WHERE id = NEW.post_id);
+  SET newRating = (SELECT rating FROM user WHERE login = authorLogin);
 
   CASE likeType
     WHEN 'like' THEN
@@ -278,7 +214,7 @@ BEGIN
   UPDATE user
   SET rating = newRating
   WHERE
-    id = authorId;
+    login = authorLogin;
   
 END
 //
@@ -289,12 +225,13 @@ CREATE TRIGGER IF NOT EXISTS after_post_likes_update
 AFTER UPDATE
 ON post_likes FOR EACH ROW
 BEGIN
-  DECLARE newRating, authorId INT;
+  DECLARE newRating INT;
+  DECLARE authorLogin VARCHAR(30);
   DECLARE likeType VARCHAR(10);
 
   SET likeType = (SELECT type FROM like_entity WHERE id = NEW.like_id);
-  SET authorId = (SELECT author FROM post WHERE id = NEW.post_id);
-  SET newRating = (SELECT rating FROM user WHERE id = authorId);
+  SET authorLogin = (SELECT author FROM post WHERE id = NEW.post_id);
+  SET newRating = (SELECT rating FROM user WHERE login = authorLogin);
   -- можливо додати перевірку попередніх занчень в OLD щоб уникнути  OLD = 'like' & NEW = 'like'
   -- post_likes тип в цый таблицы не змынюеться а лише в like_entity отже update не працює
 
@@ -308,7 +245,7 @@ BEGIN
   UPDATE user
   SET rating = newRating
   WHERE
-    id = authorId;
+    login = authorLogin;
   
 END
 //
@@ -319,12 +256,13 @@ CREATE TRIGGER IF NOT EXISTS after_post_likes_delete
 AFTER DELETE
 ON post_likes FOR EACH ROW
 BEGIN
-  DECLARE newRating, authorId INT;
+  DECLARE newRating INT;
+  DECLARE authorLogin VARCHAR(30);
   DECLARE likeType VARCHAR(10);
 
   SET likeType = (SELECT type FROM like_entity WHERE id = OLD.like_id);
-  SET authorId = (SELECT author FROM post WHERE id = OLD.post_id);
-  SET newRating = (SELECT rating FROM user WHERE id = authorId);
+  SET authorLogin = (SELECT author FROM post WHERE id = OLD.post_id);
+  SET newRating = (SELECT rating FROM user WHERE login = authorLogin);
 
   CASE likeType
     WHEN 'like' THEN
@@ -336,7 +274,7 @@ BEGIN
   UPDATE user
   SET rating = newRating
   WHERE
-    id = authorId;
+    login = authorLogin;
   
 END
 //
