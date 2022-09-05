@@ -22,8 +22,8 @@ CREATE TABLE IF NOT EXISTS post (
   author VARCHAR(30) NOT NULL,
   title VARCHAR(100) NOT NULL, -- ?? size
   publish_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL, -- ??DATETIME https://dev.mysql.com/doc/refman/8.0/en/timestamp-initialization.html
-  status ENUM('active', 'inactive') DEFAULT 'active',
   content VARCHAR(5000), -- ?? type size
+  status ENUM('active', 'inactive') DEFAULT 'active',
   -- ??categories
   -- FOREIGN KEY (author) REFERENCES user(id) ON DELETE CASCADE
   FOREIGN KEY (author) REFERENCES user(login) ON DELETE CASCADE
