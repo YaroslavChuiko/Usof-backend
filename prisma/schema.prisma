@@ -9,58 +9,55 @@ datasource db {
 
 model category {
   id              Int               @id @default(autoincrement())
-  title           String?           @unique(map: "title") @db.VarChar(30)
+  title           String            @unique(map: "title") @db.VarChar(30)
   description     String            @db.VarChar(100)
   post_categories post_categories[]
 }
 
 model comment {
-  id            Int             @id @default(autoincrement())
-  author        String          @db.VarChar(30)
-  publish_date  DateTime        @default(now()) @db.Timestamp(0)
-  content       String          @db.VarChar(1000)
-  user          user            @relation(fields: [author], references: [login], onDelete: Cascade, onUpdate: NoAction, map: "comment_ibfk_1")
-  comment_likes comment_likes[]
-  post_comments post_comments[]
+  id           Int           @id @default(autoincrement())
+  author_id    Int
+  post_id      Int
+  content      String        @db.VarChar(1000)
+  publish_date DateTime      @default(now()) @db.Timestamp(0)
+  user         user          @relation(fields: [author_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "comment_ibfk_1")
+  post         post          @relation(fields: [post_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "comment_ibfk_2")
+  like_entity  like_entity[]
 
-  @@index([author], map: "author")
-}
-
-model comment_likes {
-  comment_id  Int
-  like_id     Int
-  comment     comment     @relation(fields: [comment_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "comment_likes_ibfk_1")
-  like_entity like_entity @relation(fields: [like_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "comment_likes_ibfk_2")
-
-  @@id([comment_id, like_id])
-  @@index([like_id], map: "like_id")
+  @@index([author_id], map: "author_id")
+  @@index([post_id], map: "post_id")
 }
 
 model like_entity {
-  id            Int              @id @default(autoincrement())
-  author        String           @db.VarChar(30)
-  publish_date  DateTime         @default(now()) @db.Timestamp(0)
-  type          like_entity_type @default(like)
-  user          user             @relation(fields: [author], references: [login], onDelete: NoAction, onUpdate: NoAction, map: "like_entity_ibfk_1")
-  comment_likes comment_likes[]
-  post_likes    post_likes[]
+  id             Int              @id @default(autoincrement())
+  author_id      Int
+  target_post    Int?
+  target_comment Int?
+  publish_date   DateTime         @default(now()) @db.Timestamp(0)
+  type           like_entity_type @default(like)
+  user           user             @relation(fields: [author_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "like_entity_ibfk_1")
+  post           post?            @relation(fields: [target_post], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "like_entity_ibfk_2")
+  comment        comment?         @relation(fields: [target_comment], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "like_entity_ibfk_3")
 
-  @@index([author], map: "author")
+  @@unique([author_id, target_post], map: "uc_like_entity")
+  @@unique([author_id, target_comment], map: "uc_like_entity2")
+  @@index([target_post], map: "target_post")
+  @@index([target_comment], map: "target_comment")
 }
 
 model post {
   id              Int               @id @default(autoincrement())
-  author          String            @db.VarChar(30)
+  author_id       Int
   title           String            @db.VarChar(100)
   publish_date    DateTime          @default(now()) @db.Timestamp(0)
-  status          post_status?      @default(active)
   content         String?           @db.VarChar(5000)
-  user            user              @relation(fields: [author], references: [login], onDelete: Cascade, onUpdate: NoAction, map: "post_ibfk_1")
+  status          post_status?      @default(active)
+  user            user              @relation(fields: [author_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "post_ibfk_1")
+  comment         comment[]
+  like_entity     like_entity[]
   post_categories post_categories[]
-  post_comments   post_comments[]
-  post_likes      post_likes[]
 
-  @@index([author], map: "author")
+  @@index([author_id], map: "author_id")
 }
 
 model post_categories {
@@ -71,26 +68,6 @@ model post_categories {
 
   @@id([post_id, category_id])
   @@index([category_id], map: "category_id")
-}
-
-model post_comments {
-  post_id    Int
-  comment_id Int
-  post       post    @relation(fields: [post_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "post_comments_ibfk_1")
-  comment    comment @relation(fields: [comment_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "post_comments_ibfk_2")
-
-  @@id([post_id, comment_id])
-  @@index([comment_id], map: "comment_id")
-}
-
-model post_likes {
-  post_id     Int
-  like_id     Int
-  post        post        @relation(fields: [post_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "post_likes_ibfk_1")
-  like_entity like_entity @relation(fields: [like_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "post_likes_ibfk_2")
-
-  @@id([post_id, like_id])
-  @@index([like_id], map: "like_id")
 }
 
 model user {
