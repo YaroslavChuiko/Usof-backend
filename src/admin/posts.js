@@ -17,6 +17,7 @@ import {
   SimpleForm,
   TextInput,
   required,
+  DateInput,
 } from 'react-admin';
 import { RichTextInput } from 'ra-input-rich-text';
 
@@ -27,8 +28,8 @@ const statuses = [
 
 const postFilters = [
   <TextInput source="q" label="Search" alwaysOn />,
-  <ReferenceInput source="userId" label="User" reference="users">
-    <SelectInput optionText="name" />
+  <ReferenceInput label="Author" source="author_id" reference="users">
+    <SelectInput optionText="login" />
   </ReferenceInput>,
 ];
 
@@ -36,10 +37,9 @@ export const PostList = props => (
   <List {...props} filters={postFilters}>
     <Datagrid>
       <TextField source="id" />
-      {/* <ReferenceField label="Login" source="login" reference="users"> */}
-      <TextField source="author" />
-      {/* <TextField source="login" /> */}
-      {/* </ReferenceField> */}
+      <ReferenceField label="Author" source="author_id" reference="users">
+        <TextField source="login" />
+      </ReferenceField>
       <TextField source="title" />
       <TextField source="status" />
       <EditButton />
@@ -56,13 +56,11 @@ export const PostEdit = () => (
   <Edit title={<PostTitle />}>
     <SimpleForm>
       <TextInput disabled source="id" />
-      {/* <ReferenceInput label="User" source="userId" reference="users">
-                <SelectInput optionText="name" />
-            </ReferenceInput> */}
-      {/* <ReferenceInput label="Status" source="staus" reference="posts"> */}
-      <TextInput disabled label="Publication date" source="publish_date" />
+      <ReferenceInput label="Author" source="author_id" reference="users">
+        <SelectInput disabled optionText="login" />
+      </ReferenceInput>
+      <DateInput disabled label="Publication date" source="publish_date" />
       <SelectInput source="status" optionValue="status" optionText="status" choices={statuses} validate={required()} />
-      {/* </ReferenceInput> */}
       <TextInput disabled source="title" fullWidth />
       <TextInput disabled multiline source="content" fullWidth />
     </SimpleForm>
@@ -72,11 +70,11 @@ export const PostEdit = () => (
 export const PostCreate = () => (
   <Create>
     <SimpleForm>
-      {/* <ReferenceInput label="User" source="userId" reference="users">
-        <SelectInput optionText="name" />
-      </ReferenceInput> */}
+      <ReferenceInput label="Author" source="author_id" reference="users">
+        <SelectInput optionText="login" validate={required()} />
+      </ReferenceInput>
       <SelectInput source="status" optionValue="status" optionText="status" choices={statuses} validate={required()} />
-      <TextInput source="title" fullWidth />
+      <TextInput source="title" validate={required()} fullWidth />
       <RichTextInput multiline source="content" validate={required()} fullWidth />
     </SimpleForm>
   </Create>
@@ -85,9 +83,11 @@ export const PostCreate = () => (
 export const PostShow = props => (
   <Show {...props}>
     <SimpleShowLayout>
-      <TextField source="author" />
+      <ReferenceField label="Author" source="author_id" reference="users">
+        <TextField source="login" />
+      </ReferenceField>
       <TextField source="status" />
-      <DateField label="Publication date" source="publish_date" />
+      <DateField label="Publication date" source="publish_date" locales="uk-UA" showTime/>
       <TextField source="title" />
       <RichTextField source="content" />
     </SimpleShowLayout>
