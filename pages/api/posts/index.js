@@ -33,9 +33,10 @@ export default async function handler(req, res) {
   }
 }
 
-function getOprions(queryParams) {
+function getOptions(queryParams) {
   const options = {};
-  const { _start, _end, _sort, _order, id, login } = queryParams;
+  const { _start, _end, _sort, _order, id, author } = queryParams;
+  console.log('queryParams User', queryParams)
 
   if (_start && _end) {
     options.skip = Number(_start);
@@ -47,14 +48,18 @@ function getOprions(queryParams) {
     };
   }
   if (id) {
-    console.log(id);
+    let idNum = Array.isArray(id) ? id.map(item => Number(item)) : [Number(id)];
+    console.log('idNum Post',idNum);
+
     options.where = {
-      id: { in: [Number(id)] }, //??
+      id: { in: idNum }, //??
     };
-  } else if (login) {
+  } else if (author) {
+    console.log('filterPOst', author);
+    // getManyReference
     options.where = {
-      login: {
-        equals: login,
+      author: {
+        equals: author,
       },
     };
   }
@@ -62,9 +67,10 @@ function getOprions(queryParams) {
   return options;
 }
 
+// GET /api/posts
 async function handleGET(req, res) {
-  const options = getOprions(req.query);
-  console.log(options);
+  const options = getOptions(req.query);
+  // console.log(options);
 
   try {
     const posts = await prisma.post.findMany(options);
@@ -79,20 +85,21 @@ async function handleGET(req, res) {
   }
 }
 
+// POST /api/posts
 async function handlePOST(data, res) {
-  const { author, title, content, status } = data;
-  console.log(data);
+  const { author_id, title, content, status } = data;
+  // console.log(data);
 
   try {
-    await prisma.post.create({
+    const newPost = await prisma.post.create({
       data: {
-        author: author,
+        author_id: author_id,
         title: title,
         content: content,
         status: status,
       },
     });
-    res.status(200).json({});
+    res.status(200).json(newPost);
   } catch (error) {
     console.error(error);
     res.status(500).json(error.message);

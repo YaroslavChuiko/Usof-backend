@@ -16,6 +16,7 @@ export default async function handler(req, res) {
   }
 }
 
+// GET /api/posts/[postid]
 async function handleGET(postId, res) {
   try {
     const post = await prisma.post.findUnique({
@@ -31,6 +32,7 @@ async function handleGET(postId, res) {
   }
 }
 
+// PUT /api/posts/[postid]
 async function handlePUT(postId, data, res) {
   const { status, title, content } = data;
   try {
@@ -49,13 +51,14 @@ async function handlePUT(postId, data, res) {
   }
 }
 
+// DELETE /api/posts/[postid]
 async function handleDELETE(postId, res) {
   try {
-    await prisma.post.delete({
+    const post = await prisma.post.delete({
       where: { id: Number(postId) },
     });
 
-    res.status(200).json({});
+    res.status(200).json(post);
     // {
     //     data: { id: 123, title: "hello, world" }
     // }
