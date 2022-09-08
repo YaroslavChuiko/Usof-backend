@@ -13,7 +13,7 @@ export default async function handler(req, res) {
 
 function getOptions(queryParams) {
   const options = {};
-  const { _start, _end, _sort, _order, id, login } = queryParams;
+  const { _start, _end, _sort, _order, id, login, role, q } = queryParams;
   console.log('queryParams User', queryParams)
   if (_start && _end) {
     options.skip = Number(_start);
@@ -33,13 +33,30 @@ function getOptions(queryParams) {
       id: { in: idNum }, //??
     };
   } else if (login) {
-    console.log('filterUsers', author);
+    console.log('filterUsers login', login);
 
     options.where = {
       login: {
         equals: login,
       },
     };
+  } else if (role) {
+    options.where = {
+      role: {
+        equals: role,
+      },
+    };
+  } else if (q) {
+    // options.where = {
+    //   OR: [
+    //     {
+    //       login: { contains: q},
+    //     },
+    //     {
+    //       full_name: { contains: q},
+    //     }
+    //   ]
+    // }
   }
 
   return options;
@@ -69,13 +86,13 @@ async function handlePOST(data, res) {
   // console.log(data);
 
   try {
-    const newUser = await prisma.post.create({
+    const newUser = await prisma.user.create({
       data: {
         login: login,
         password: password,
         full_name: full_name,
         email: email,
-        // profile_picture: profile_picture,
+        profile_picture: profile_picture,
         role: role,
       },
     });
