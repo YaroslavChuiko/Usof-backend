@@ -18,6 +18,8 @@ import {
   TextInput,
   required,
   DateInput,
+  useRecordContext,
+  AutocompleteInput,
 } from 'react-admin';
 import { RichTextInput } from 'ra-input-rich-text';
 
@@ -27,15 +29,16 @@ const statuses = [
 ];
 
 const postFilters = [
-  <TextInput source="q" label="Search" alwaysOn />,
+  <TextInput source="q" label="Search in title" alwaysOn />,
   <ReferenceInput label="Author" source="author_id" reference="users">
-    <SelectInput optionText="login" />
+    <AutocompleteInput optionText="login" />
   </ReferenceInput>,
+  <SelectInput source="status" optionValue="status" optionText="label" choices={statuses} />,
 ];
 
 export const PostList = props => (
   <List {...props} filters={postFilters}>
-    <Datagrid>
+    <Datagrid hover={false}>
       <TextField source="id" />
       <ReferenceField label="Author" source="author_id" reference="users">
         <TextField source="login" />
@@ -48,8 +51,9 @@ export const PostList = props => (
   </List>
 );
 
-const PostTitle = ({ record }) => {
-  return <span>Post {record ? `"${record.title}"` : ''}</span>;
+const PostTitle = () => {
+  const record = useRecordContext();
+  return <span>Post: {record ? `"${record.title}"` : ''}</span>;
 };
 
 export const PostEdit = () => (
@@ -73,7 +77,7 @@ export const PostCreate = () => (
       <ReferenceInput label="Author" source="author_id" reference="users">
         <SelectInput optionText="login" validate={required()} />
       </ReferenceInput>
-      <SelectInput source="status" optionValue="status" optionText="status" choices={statuses} validate={required()} />
+      <SelectInput source="status" optionValue="status" optionText="label" choices={statuses} validate={required()} />
       <TextInput source="title" validate={required()} fullWidth />
       <RichTextInput multiline source="content" validate={required()} fullWidth />
     </SimpleForm>
@@ -81,7 +85,7 @@ export const PostCreate = () => (
 );
 
 export const PostShow = props => (
-  <Show {...props}>
+  <Show {...props} title={<PostTitle />}>
     <SimpleShowLayout>
       <ReferenceField label="Author" source="author_id" reference="users">
         <TextField source="login" />
