@@ -47,16 +47,16 @@ function getOptions(queryParams) {
       },
     };
   } else if (q) {
-    // options.where = {
-    //   OR: [
-    //     {
-    //       login: { contains: q},
-    //     },
-    //     {
-    //       full_name: { contains: q},
-    //     }
-    //   ]
-    // }
+    options.where = {
+      OR: [
+        {
+          login: { contains: q},
+        },
+        {
+          full_name: { contains: q},
+        }
+      ]
+    }
   }
 
   return options;
