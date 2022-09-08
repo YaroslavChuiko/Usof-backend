@@ -35,7 +35,7 @@ export default async function handler(req, res) {
 
 function getOptions(queryParams) {
   const options = {};
-  const { _start, _end, _sort, _order, id, author } = queryParams;
+  const { _start, _end, _sort, _order, id, author_id, status, q } = queryParams;
   console.log('queryParams User', queryParams)
 
   if (_start && _end) {
@@ -54,14 +54,31 @@ function getOptions(queryParams) {
     options.where = {
       id: { in: idNum }, //??
     };
-  } else if (author) {
-    console.log('filterPOst', author);
+  } else if (author_id) {
+    console.log('filterPOst author_id', author_id);
     // getManyReference
     options.where = {
-      author: {
-        equals: author,
+      author_id: {
+        equals: Number(author_id),
       },
     };
+  } else if (status) {
+    options.where = {
+      status: {
+        equals: status,
+      },
+    };
+  } else if (q) {
+    options.where = {
+      OR: [
+        {
+          title: { contains: q},
+        },
+        // {
+        //   status: { equals: q},
+        // },
+      ]
+    }
   }
 
   return options;
