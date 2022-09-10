@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS post (
   publish_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL, -- ??DATETIME https://dev.mysql.com/doc/refman/8.0/en/timestamp-initialization.html
   content VARCHAR(5000), -- ?? type size
   status ENUM('active', 'inactive') DEFAULT 'active',
+  rating INT DEFAULT 0 NOT NULL,
   -- ??categories
   FOREIGN KEY (author_id) REFERENCES user(id) ON DELETE CASCADE
 );
@@ -34,6 +35,8 @@ CREATE TABLE IF NOT EXISTS comment (
   post_id INT NOT NULL,
     FOREIGN KEY (post_id) REFERENCES post(id) ON DELETE CASCADE,
   content VARCHAR(1000) NOT NULL, -- ??type size
+  status ENUM('active', 'inactive') DEFAULT 'active',
+  rating INT DEFAULT 0 NOT NULL,
   publish_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
