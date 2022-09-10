@@ -43,7 +43,7 @@ async function handlePUT(userId, data, res) {
         password: password,
         full_name: full_name,
         email: email,
-        // profile_picture: profile_picture,
+        profile_picture: profile_picture,
         role: role,
       },
     });
@@ -62,9 +62,6 @@ async function handleDELETE(userId, res) {
     });
 
     res.status(200).json(user);
-    // {
-    //     data: { id: 123, title: "hello, world" }
-    // }
   } catch (error) {
     console.error(error);
     res.status(500).json(error.message);
