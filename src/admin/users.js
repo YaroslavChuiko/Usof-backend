@@ -97,16 +97,18 @@ export const UserShow = props => (
   <Show title={<UserTitle />} {...props}>
     <TabbedShowLayout spacing={2}>
       <Tab label="Summary">
-        <TextField source="login" />
-        <TextField source="full_name" />
-        {/* <DateField label="Publication date" source="publish_date" /> */}
-        <EmailField source="email" />
-        <NumberField source="rating" />
-        <TextField source="role" />
+        <SimpleShowLayout>
+          <TextField source="login" />
+          <TextField source="full_name" />
+          {/* <DateField label="Publication date" source="publish_date" /> */}
+          <EmailField source="email" />
+          <NumberField source="rating" />
+          <TextField source="role" />
+        </SimpleShowLayout>
       </Tab>
       <Tab label="Posts" path="posts">
         <ReferenceManyField reference="posts" target="author_id" label={false}>
-          <Datagrid>
+          <Datagrid rowClick="show">
             <TextField source="id" />
             <ReferenceField label="Author" source="author_id" reference="users">
               <TextField source="login" />
@@ -114,7 +116,21 @@ export const UserShow = props => (
             <TextField source="title" />
             <TextField source="status" />
             <EditButton />
-            <ShowButton />
+          </Datagrid>
+        </ReferenceManyField>
+      </Tab>
+      <Tab label="Comments" path="comments">
+        <ReferenceManyField reference="comments" target="author_id" label={false}>
+          <Datagrid rowClick="show">
+            <TextField source="id" />
+            <ReferenceField source="post_id" reference="posts" />
+            <ReferenceField label="Author" source="author_id" reference="users">
+              <TextField source="login" />
+            </ReferenceField>
+            <TextField source="status" />
+            <NumberField source="rating" />
+            <TextField source="content" />
+            <EditButton />
           </Datagrid>
         </ReferenceManyField>
       </Tab>
