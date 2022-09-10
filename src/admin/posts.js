@@ -20,6 +20,10 @@ import {
   DateInput,
   useRecordContext,
   AutocompleteInput,
+  TabbedShowLayout,
+  Tab,
+  ReferenceManyField,
+  NumberField,
 } from 'react-admin';
 import { RichTextInput } from 'ra-input-rich-text';
 
@@ -61,7 +65,7 @@ export const PostEdit = () => (
     <SimpleForm>
       <TextInput disabled source="id" />
       <ReferenceInput label="Author" source="author_id" reference="users">
-        <SelectInput disabled optionText="login" />
+        <AutocompleteInput disabled optionText="login" />
       </ReferenceInput>
       <DateInput disabled label="Publication date" source="publish_date" />
       <SelectInput source="status" optionValue="status" optionText="status" choices={statuses} validate={required()} />
@@ -75,7 +79,7 @@ export const PostCreate = () => (
   <Create>
     <SimpleForm>
       <ReferenceInput label="Author" source="author_id" reference="users">
-        <SelectInput optionText="login" validate={required()} />
+        <AutocompleteInput optionText="login" validate={required()} />
       </ReferenceInput>
       <SelectInput source="status" optionValue="status" optionText="label" choices={statuses} validate={required()} />
       <TextInput source="title" validate={required()} fullWidth />
@@ -86,14 +90,33 @@ export const PostCreate = () => (
 
 export const PostShow = props => (
   <Show {...props} title={<PostTitle />}>
-    <SimpleShowLayout>
-      <ReferenceField label="Author" source="author_id" reference="users">
-        <TextField source="login" />
-      </ReferenceField>
-      <TextField source="status" />
-      <DateField label="Publication date" source="publish_date" locales="uk-UA" showTime/>
-      <TextField source="title" />
-      <RichTextField source="content" />
-    </SimpleShowLayout>
+    <TabbedShowLayout spacing={2}>
+      <Tab label="Summary">
+        <SimpleShowLayout>
+          <ReferenceField label="Author" source="author_id" reference="users">
+            <TextField source="login" />
+          </ReferenceField>
+          <TextField source="status" />
+          <DateField label="Publication date" source="publish_date" locales="uk-UA" showTime />
+          <TextField source="title" />
+          <RichTextField source="content" />
+        </SimpleShowLayout>
+      </Tab>
+      <Tab label="Comments" path="comments">
+        <ReferenceManyField reference="comments" target="post_id" label={false}>
+          <Datagrid rowClick="show">
+            <TextField source="id" />
+            <ReferenceField source="post_id" reference="posts" />
+            <ReferenceField label="Author" source="author_id" reference="users">
+              <TextField source="login" />
+            </ReferenceField>
+            <TextField source="status" />
+            <NumberField source="rating" />
+            <TextField source="content" />
+            <EditButton />
+          </Datagrid>
+        </ReferenceManyField>
+      </Tab>
+    </TabbedShowLayout>
   </Show>
 );
