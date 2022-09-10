@@ -15,13 +15,15 @@ model category {
 }
 
 model comment {
-  id           Int           @id @default(autoincrement())
+  id           Int             @id @default(autoincrement())
   author_id    Int
   post_id      Int
-  content      String        @db.VarChar(1000)
-  publish_date DateTime      @default(now()) @db.Timestamp(0)
-  user         user          @relation(fields: [author_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "comment_ibfk_1")
-  post         post          @relation(fields: [post_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "comment_ibfk_2")
+  content      String          @db.VarChar(1000)
+  status       comment_status? @default(active)
+  rating       Int             @default(0)
+  publish_date DateTime        @default(now()) @db.Timestamp(0)
+  user         user            @relation(fields: [author_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "comment_ibfk_1")
+  post         post            @relation(fields: [post_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "comment_ibfk_2")
   like_entity  like_entity[]
 
   @@index([author_id], map: "author_id")
@@ -39,8 +41,8 @@ model like_entity {
   post           post?            @relation(fields: [target_post], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "like_entity_ibfk_2")
   comment        comment?         @relation(fields: [target_comment], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "like_entity_ibfk_3")
 
-  @@unique([author_id, target_post], map: "uc_like_entity")
-  @@unique([author_id, target_comment], map: "uc_like_entity2")
+  @@unique([author_id, target_comment], map: "uc_like_authorComment")
+  @@unique([author_id, target_post], map: "uc_like_authorPost")
   @@index([target_post], map: "target_post")
   @@index([target_comment], map: "target_comment")
 }
@@ -52,6 +54,7 @@ model post {
   publish_date    DateTime          @default(now()) @db.Timestamp(0)
   content         String?           @db.VarChar(5000)
   status          post_status?      @default(active)
+  rating          Int               @default(0)
   user            user              @relation(fields: [author_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "post_ibfk_1")
   comment         comment[]
   like_entity     like_entity[]
@@ -97,4 +100,9 @@ enum like_entity_type {
 enum user_role {
   user
   admin
+}
+
+enum comment_status {
+  active
+  inactive
 }
