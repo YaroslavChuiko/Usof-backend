@@ -43,13 +43,13 @@ CREATE TABLE IF NOT EXISTS comment (
 CREATE TABLE IF NOT EXISTS category (
   id INT AUTO_INCREMENT PRIMARY KEY,
   title VARCHAR(30) UNIQUE NOT NULL,
-  description VARCHAR(100) NOT NULL -- ?? size
+  description VARCHAR(500) NOT NULL -- ?? size
 );
 
 CREATE TABLE IF NOT EXISTS post_categories (
   post_id INT NOT NULL,
   category_id INT NOT NULL,
-  PRIMARY KEY(post_id, category_id), -- ?? 
+  PRIMARY KEY (post_id, category_id), -- ?? 
   FOREIGN KEY (post_id) REFERENCES post(id) ON DELETE CASCADE,
   FOREIGN KEY (category_id) REFERENCES category(id) ON DELETE CASCADE
 );
