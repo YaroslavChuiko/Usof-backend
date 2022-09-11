@@ -29,6 +29,7 @@ import {
   ImageInput,
   ImageField,
   AutocompleteInput,
+  Pagination,
 } from 'react-admin';
 
 const roles = [
@@ -107,23 +108,25 @@ export const UserShow = props => (
         </SimpleShowLayout>
       </Tab>
       <Tab label="Posts" path="posts">
-        <ReferenceManyField reference="posts" target="author_id" label={false}>
+        <ReferenceManyField reference="posts" target="author_id" pagination={<Pagination />} label={false}>
           <Datagrid rowClick="show">
             <TextField source="id" />
             <ReferenceField label="Author" source="author_id" reference="users">
               <TextField source="login" />
             </ReferenceField>
             <TextField source="title" />
+            <NumberField source="rating" />
             <TextField source="status" />
             <EditButton />
           </Datagrid>
         </ReferenceManyField>
       </Tab>
       <Tab label="Comments" path="comments">
-        <ReferenceManyField reference="comments" target="author_id" label={false}>
+        <ReferenceManyField reference="comments" target="author_id" pagination={<Pagination />} label={false}>
           <Datagrid rowClick="show">
             <TextField source="id" />
             <ReferenceField source="post_id" reference="posts" />
+            {/* <ReferenceField label="Author" source="login" reference="users"/> */}
             <ReferenceField label="Author" source="author_id" reference="users">
               <TextField source="login" />
             </ReferenceField>
@@ -131,6 +134,20 @@ export const UserShow = props => (
             <NumberField source="rating" />
             <TextField source="content" />
             <EditButton />
+          </Datagrid>
+        </ReferenceManyField>
+      </Tab>
+      <Tab label="Likes" path="likes">
+        <ReferenceManyField reference="likes" target="author_id" pagination={<Pagination />} label={false}>
+          <Datagrid hover={false}>
+            <TextField source="id" />
+            <ReferenceField label="Author" source="author_id" reference="users">
+              <TextField source="login" />
+            </ReferenceField>
+            <ReferenceField label="Post" source="target_post" emptyText="null" reference="posts"/>
+            <ReferenceField label="Comment" source="target_comment" emptyText="null" reference="comments" />
+            <DateField label="Publication date" source="publish_date" locales="uk-UA" showTime />
+            <TextField source="type" />
           </Datagrid>
         </ReferenceManyField>
       </Tab>
