@@ -62,7 +62,7 @@ function getOptions(queryParams) {
   return options;
 }
 
-// GET /api/users/[userId]
+// GET /api/users/
 async function handleGET(req, res) {
   const options = getOptions(req.query);
   // console.log(options);
@@ -80,7 +80,7 @@ async function handleGET(req, res) {
   }
 }
 
-// POST /api/users/[userId]
+// POST /api/users/
 async function handlePOST(data, res) {
   const { login, password, full_name, email, profile_picture, role } = data;
   // console.log(data);
