@@ -24,6 +24,13 @@ import {
   Tab,
   ReferenceManyField,
   NumberField,
+  Pagination,
+  ArrayField,
+  SingleFieldList,
+  ChipField,
+  ReferenceArrayInput,
+  SelectArrayInput,
+  ReferenceArrayField,
 } from 'react-admin';
 import { RichTextInput } from 'ra-input-rich-text';
 
@@ -48,6 +55,12 @@ export const PostList = props => (
         <TextField source="login" />
       </ReferenceField>
       <TextField source="title" />
+      <NumberField source="rating" />
+      <ReferenceArrayField label="Categories" source="post_categories" reference="categories">
+        <SingleFieldList linkType="">
+          <ChipField source="title" />
+        </SingleFieldList>
+      </ReferenceArrayField>
       <TextField source="status" />
       <EditButton />
       <ShowButton />
@@ -68,6 +81,9 @@ export const PostEdit = () => (
         <AutocompleteInput disabled optionText="login" />
       </ReferenceInput>
       <DateInput disabled label="Publication date" source="publish_date" />
+      <ReferenceArrayInput source="post_categories" reference="categories">
+        <SelectArrayInput optionText="title" />
+      </ReferenceArrayInput>
       <SelectInput source="status" optionValue="status" optionText="status" choices={statuses} validate={required()} />
       <TextInput disabled source="title" fullWidth />
       <TextInput disabled multiline source="content" fullWidth />
@@ -98,12 +114,22 @@ export const PostShow = props => (
           </ReferenceField>
           <TextField source="status" />
           <DateField label="Publication date" source="publish_date" locales="uk-UA" showTime />
+          {/* <ArrayField label="Categories" source="post_categories">
+            <SingleFieldList linkType="">
+              <ChipField source="title" />
+            </SingleFieldList>
+          </ArrayField> */}
+          <ReferenceArrayField label="Categories" source="post_categories" reference="categories">
+            <SingleFieldList>
+              <ChipField source="title" />
+            </SingleFieldList>
+          </ReferenceArrayField>
           <TextField source="title" />
           <RichTextField source="content" />
         </SimpleShowLayout>
       </Tab>
       <Tab label="Comments" path="comments">
-        <ReferenceManyField reference="comments" target="post_id" label={false}>
+        <ReferenceManyField reference="comments" target="post_id" pagination={<Pagination />} label={false}>
           <Datagrid rowClick="show">
             <TextField source="id" />
             <ReferenceField source="post_id" reference="posts" />
@@ -114,6 +140,18 @@ export const PostShow = props => (
             <NumberField source="rating" />
             <TextField source="content" />
             <EditButton />
+          </Datagrid>
+        </ReferenceManyField>
+      </Tab>
+      <Tab label="Likes" path="likes">
+        <ReferenceManyField reference="likes" target="target_post" pagination={<Pagination />} label={false}>
+          <Datagrid hover={false}>
+            <TextField source="id" />
+            <ReferenceField label="Author" source="author_id" reference="users">
+              <TextField source="login" />
+            </ReferenceField>
+            <DateField label="Publication date" source="publish_date" locales="uk-UA" showTime />
+            <TextField source="type" />
           </Datagrid>
         </ReferenceManyField>
       </Tab>
