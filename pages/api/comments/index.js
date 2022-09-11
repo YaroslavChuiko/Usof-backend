@@ -1,6 +1,6 @@
 import prisma from '../../../lib/prisma';
 
-// /api/users
+// /api/comments
 export default async function handler(req, res) {
   if (req.method === 'GET') {
     handleGET(req, res);
@@ -63,7 +63,7 @@ function getOptions(queryParams) {
   return options;
 }
 
-// GET /api/comments/[commentId]
+// GET /api/comments/
 async function handleGET(req, res) {
   const options = getOptions(req.query);
   // console.log(options);
@@ -81,7 +81,7 @@ async function handleGET(req, res) {
   }
 }
 
-// POST /api/comments/[commentId]
+// POST /api/comments/
 async function handlePOST(data, res) {
   const { author_id, post_id, content, status } = data;
   // console.log(data);
