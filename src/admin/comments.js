@@ -30,6 +30,7 @@ import {
   ImageField,
   AutocompleteInput,
   DateInput,
+  Pagination,
 } from 'react-admin';
 
 const statuses = [
@@ -115,20 +116,18 @@ export const CommentShow = props => (
           <TextField source="status" />
         </SimpleShowLayout>
       </Tab>
-      {/* <Tab label="Posts" path="posts">
-        <ReferenceManyField reference="posts" target="author_id" label={false}>
-          <Datagrid>
+      <Tab label="Likes" path="likes">
+        <ReferenceManyField reference="likes" target="target_comment" pagination={<Pagination />} label={false}>
+          <Datagrid hover={false}>
             <TextField source="id" />
             <ReferenceField label="Author" source="author_id" reference="users">
               <TextField source="login" />
             </ReferenceField>
-            <TextField source="title" />
-            <TextField source="status" />
-            <EditButton />
-            <ShowButton />
+            <DateField label="Publication date" source="publish_date" locales="uk-UA" showTime />
+            <TextField source="type" />
           </Datagrid>
         </ReferenceManyField>
-      </Tab> */}
+      </Tab>
     </TabbedShowLayout>
   </Show>
 );
