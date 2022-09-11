@@ -4,6 +4,7 @@ import restProvider from 'ra-data-json-server';
 import { PostCreate, PostEdit, PostList, PostShow } from './posts';
 import { UserCreate, UserEdit, UserList, UserShow } from './users';
 import { CommentCreate, CommentEdit, CommentList, CommentShow } from './comments';
+import { CategoryList } from './categories';
 // import jsonServerProvider from 'ra-data-json-server';
 
 // const dataProvider = jsonServerProvider('https://jsonplaceholder.typicode.com');
@@ -31,6 +32,13 @@ const App = () => (
       show={CommentShow}
       edit={CommentEdit}
       create={CommentCreate}
+    />
+    <Resource
+      name="categories"
+      list={CategoryList}
+      // show={CommentShow}
+      // edit={CommentEdit}
+      // create={CommentCreate}
     />
   </Admin>
 );
