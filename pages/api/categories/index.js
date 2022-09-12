@@ -14,7 +14,7 @@ export default async function handler(req, res) {
 function getOptions(queryParams) {
   const options = {};
   const { _start, _end, _sort, _order, id, author_id, post_id, status, q } = queryParams;
-  console.log('queryParams comment', queryParams);
+  console.log('queryParams category', queryParams);
   if (_start && _end) {
     options.skip = Number(_start);
     options.take = _end - _start;
@@ -27,13 +27,13 @@ function getOptions(queryParams) {
   if (id) {
     // console.log(id);
     let idNum = Array.isArray(id) ? id.map(item => Number(item)) : [Number(id)];
-    console.log('idNum comment', idNum);
+    console.log('idNum category', idNum);
 
     options.where = {
       id: { in: idNum }, //??
     };
   } else if (author_id) {
-    console.log('filterComment author_id', author_id);
+    console.log('filtercategory author_id', author_id);
     // getManyReference
     options.where = {
       author_id: {
@@ -41,7 +41,7 @@ function getOptions(queryParams) {
       },
     };
   } else if (post_id) {
-    console.log('filterComment post_id', post_id);
+    console.log('filtercategory post_id', post_id);
     // getManyReference
     options.where = {
       post_id: {
@@ -56,7 +56,7 @@ function getOptions(queryParams) {
     };
   } else if (q) {
     options.where = {
-      content: { contains: q },
+      title: { contains: q },
     };
   }
 
