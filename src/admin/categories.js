@@ -1,10 +1,7 @@
 import React from 'react';
 import {
   Show,
-  ShowButton,
   SimpleShowLayout,
-  RichTextField,
-  DateField,
   List,
   Edit,
   Create,
@@ -12,47 +9,29 @@ import {
   ReferenceField,
   TextField,
   EditButton,
-  ReferenceInput,
-  SelectInput,
   SimpleForm,
   TextInput,
   required,
-  EmailField,
   NumberField,
-  PasswordInput,
-  NumberInput,
   TabbedShowLayout,
   Tab,
   ReferenceManyField,
   useRecordContext,
   ChipField,
-  ImageInput,
-  ImageField,
-  AutocompleteInput,
-  DateInput,
   Pagination,
+  ReferenceArrayField,
+  SingleFieldList,
 } from 'react-admin';
 
-const statuses = [
-  { status: 'active', label: 'active' },
-  { status: 'inactive', label: 'inactive' },
-];
-
 const categoryFilters = [
-  // <ReferenceInput label="Author" source="author_id" reference="users">
-  //   <AutocompleteInput optionText="login" />
-  // </ReferenceInput>,
-  // <ReferenceInput label="Post" source="post_id" reference="posts">
-  //   <AutocompleteInput optionText="title" />
-  // </ReferenceInput>,
-  // <SelectInput source="status" optionValue="status" optionText="label" choices={statuses} />,
+  <TextInput source="q" label="Search" alwaysOn />,
 ];
 
 export const CategoryList = props => (
   <List {...props} filters={categoryFilters}>
     <Datagrid rowClick="show">
       <TextField source="id" />
-      <TextField source="title" />
+      <ChipField size="small" source="title" />
       <TextField source="description" />
       <EditButton />
     </Datagrid>
@@ -61,19 +40,15 @@ export const CategoryList = props => (
 
 const CategoryTitle = () => {
   const record = useRecordContext();
-  return <span>Comment: id{record ? `${record.id}` : ''}</span>;
+  return <span>Categoty: {record ? `${record.title}` : ''}</span>;
 };
 
 export const CategoryEdit = () => (
   <Edit title={<CategoryTitle />}>
     <SimpleForm>
       <TextInput disabled source="id" />
-      <ReferenceInput label="Author" source="author_id" reference="users">
-        <SelectInput disabled optionText="login" />
-      </ReferenceInput>
-      <DateInput disabled label="Publication date" source="publish_date" />
-      <SelectInput source="status" optionValue="status" optionText="status" choices={statuses} validate={required()} />
-      <TextInput disabled multiline source="content" fullWidth />
+      <TextInput source="title" validate={required()} />
+      <TextInput multiline source="description" fullWidth validate={required()} />
     </SimpleForm>
   </Edit>
 );
@@ -81,14 +56,8 @@ export const CategoryEdit = () => (
 export const CategoryCreate = () => (
   <Create>
     <SimpleForm>
-      <ReferenceInput label="Author" source="author_id" reference="users">
-        <AutocompleteInput optionText="login" validate={required()} />
-      </ReferenceInput>
-      <ReferenceInput label="Post" source="post_id" reference="posts">
-        <AutocompleteInput optionText="title" validate={required()} />
-      </ReferenceInput>
-      <SelectInput source="status" optionValue="status" optionText="label" choices={statuses} validate={required()} />
-      <TextInput multiline source="content" validate={required()} fullWidth />
+      <TextInput source="title" validate={required()} />
+      <TextInput multiline source="description" fullWidth validate={required()} />
     </SimpleForm>
   </Create>
 );
@@ -98,28 +67,27 @@ export const CategoryShow = props => (
     <TabbedShowLayout spacing={2}>
       <Tab label="Summary">
         <SimpleShowLayout>
-          <NumberField source="id" />
-          <ReferenceField label="Post" source="post_id" reference="posts">
-            <TextField source="id" />
-          </ReferenceField>
-          <ReferenceField label="Author" source="author_id" reference="users">
-            <TextField source="login" />
-          </ReferenceField>
-          <DateField label="Publication date" source="publish_date" />
-          <TextField source="content" />
-          <NumberField source="rating" />
-          <TextField source="status" />
+          <TextField source="id" />
+          <TextField size="small" source="title" />
+          <TextField source="description" />
         </SimpleShowLayout>
       </Tab>
-      <Tab label="Likes" path="likes">
-        <ReferenceManyField reference="likes" target="target_comment" pagination={<Pagination />} label={false}>
+      <Tab label="Posts" path="posts">
+        <ReferenceManyField reference="posts" target="post_categories" pagination={<Pagination />} label={false}>
           <Datagrid hover={false}>
             <TextField source="id" />
             <ReferenceField label="Author" source="author_id" reference="users">
               <TextField source="login" />
             </ReferenceField>
-            <DateField label="Publication date" source="publish_date" locales="uk-UA" showTime />
-            <TextField source="type" />
+            <TextField source="title" />
+            <NumberField source="rating" />
+            <ReferenceArrayField label="Categories" source="post_categories" reference="categories">
+              <SingleFieldList linkType="">
+                <ChipField source="title" />
+              </SingleFieldList>
+            </ReferenceArrayField>
+            <TextField source="status" />
+            <EditButton />
           </Datagrid>
         </ReferenceManyField>
       </Tab>
