@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   Show,
-  ShowButton,
   SimpleShowLayout,
   RichTextField,
   DateField,
@@ -25,7 +24,6 @@ import {
   ReferenceManyField,
   NumberField,
   Pagination,
-  ArrayField,
   SingleFieldList,
   ChipField,
   ReferenceArrayInput,
@@ -49,7 +47,7 @@ const postFilters = [
 
 export const PostList = props => (
   <List {...props} filters={postFilters}>
-    <Datagrid hover={false}>
+    <Datagrid rowClick="show">
       <TextField source="id" />
       <ReferenceField label="Author" source="author_id" reference="users">
         <TextField source="login" />
@@ -63,7 +61,6 @@ export const PostList = props => (
       </ReferenceArrayField>
       <TextField source="status" />
       <EditButton />
-      <ShowButton />
     </Datagrid>
   </List>
 );
@@ -97,6 +94,9 @@ export const PostCreate = () => (
       <ReferenceInput label="Author" source="author_id" reference="users">
         <AutocompleteInput optionText="login" validate={required()} />
       </ReferenceInput>
+      <ReferenceArrayInput source="post_categories" reference="categories">
+        <SelectArrayInput optionText="title" validate={required()}/>
+      </ReferenceArrayInput>
       <SelectInput source="status" optionValue="status" optionText="label" choices={statuses} validate={required()} />
       <TextInput source="title" validate={required()} fullWidth />
       <RichTextInput multiline source="content" validate={required()} fullWidth />
@@ -114,11 +114,6 @@ export const PostShow = props => (
           </ReferenceField>
           <TextField source="status" />
           <DateField label="Publication date" source="publish_date" locales="uk-UA" showTime />
-          {/* <ArrayField label="Categories" source="post_categories">
-            <SingleFieldList linkType="">
-              <ChipField source="title" />
-            </SingleFieldList>
-          </ArrayField> */}
           <ReferenceArrayField label="Categories" source="post_categories" reference="categories">
             <SingleFieldList>
               <ChipField source="title" />
