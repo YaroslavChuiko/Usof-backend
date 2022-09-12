@@ -1,9 +1,7 @@
 import React from 'react';
 import {
   Show,
-  ShowButton,
   SimpleShowLayout,
-  RichTextField,
   DateField,
   List,
   Edit,
@@ -25,9 +23,6 @@ import {
   Tab,
   ReferenceManyField,
   useRecordContext,
-  ChipField,
-  ImageInput,
-  ImageField,
   AutocompleteInput,
   Pagination,
 } from 'react-admin';
@@ -52,9 +47,7 @@ export const UserList = props => (
       <TextField source="full_name" />
       <EmailField source="email" />
       <TextField source="role" />
-      {/* <ChipField source="role" /> */}
       <EditButton />
-      {/* <ShowButton /> */}
     </Datagrid>
   </List>
 );
@@ -73,7 +66,6 @@ export const UserEdit = () => (
       <SelectInput source="role" optionValue="role" optionText="label" choices={roles} validate={required()} />
       <TextInput source="email" validate={required()} />
       <NumberInput disabled source="rating" />
-      {/* <PasswordInput disabled source="password" /> */}
     </SimpleForm>
   </Edit>
 );
@@ -126,7 +118,6 @@ export const UserShow = props => (
           <Datagrid rowClick="show">
             <TextField source="id" />
             <ReferenceField source="post_id" reference="posts" />
-            {/* <ReferenceField label="Author" source="login" reference="users"/> */}
             <ReferenceField label="Author" source="author_id" reference="users">
               <TextField source="login" />
             </ReferenceField>
