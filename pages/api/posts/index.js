@@ -35,8 +35,9 @@ export default async function handler(req, res) {
 
 function getOptions(queryParams) {
   const options = {};
-  const { _start, _end, _sort, _order, id, author_id, status, q } = queryParams;
-  console.log('queryParams User', queryParams)
+  options.include = { post_categories: { include: { category: true } } };
+  const { _start, _end, _sort, _order, id, author_id, status, q, post_categories } = queryParams;
+  console.log('queryParams Post', queryParams);
 
   if (_start && _end) {
     options.skip = Number(_start);
@@ -49,7 +50,7 @@ function getOptions(queryParams) {
   }
   if (id) {
     let idNum = Array.isArray(id) ? id.map(item => Number(item)) : [Number(id)];
-    console.log('idNum Post',idNum);
+    console.log('idNum Post', idNum);
 
     options.where = {
       id: { in: idNum }, //??
@@ -68,17 +69,25 @@ function getOptions(queryParams) {
         equals: status,
       },
     };
+  } else if (post_categories) {
+    options.where = {
+      post_categories: {
+        some: {
+          category_id: Number(post_categories),
+        },
+      },
+    };
   } else if (q) {
     options.where = {
       OR: [
         {
-          title: { contains: q},
+          title: { contains: q },
         },
         // {
         //   status: { equals: q},
         // },
-      ]
-    }
+      ],
+    };
   }
 
   return options;
@@ -90,7 +99,11 @@ async function handleGET(req, res) {
   // console.log(options);
 
   try {
-    const posts = await prisma.post.findMany(options);
+    let posts = await prisma.post.findMany(options);
+    posts = posts.map(post => {
+      return { ...post, post_categories: post.post_categories.map(category => category.category.id) };
+    });
+    // console.log('posts', posts[0].post_categories)
     const countPosts = await prisma.post.count({ where: options.where });
 
     res.setHeader('X-Total-Count', countPosts);
@@ -104,7 +117,7 @@ async function handleGET(req, res) {
 
 // POST /api/posts
 async function handlePOST(data, res) {
-  const { author_id, title, content, status } = data;
+  const { author_id, title, content, status, post_categories } = data;
   // console.log(data);
 
   try {
@@ -114,6 +127,9 @@ async function handlePOST(data, res) {
         title: title,
         content: content,
         status: status,
+        post_categories: {
+          createMany: { data: post_categories.map(item => ({ category_id: item })) }, // create row for every category in join table
+        },
       },
     });
     res.status(200).json(newPost);
