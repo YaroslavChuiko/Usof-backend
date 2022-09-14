@@ -1,4 +1,5 @@
 import prisma from '../../../lib/prisma';
+import SimpleREST from '../../../logic/SimpleREST';
 
 // /api/users/[userId]
 export default async function handler(req, res) {
@@ -18,52 +19,64 @@ export default async function handler(req, res) {
 
 // GET /api/users/[userId]
 async function handleGET(userId, res) {
-  try {
-    const user = await prisma.user.findUnique({
-      where: {
-        id: Number(userId),
-      },
-    });
+  SimpleREST.getOne(res, userId, prisma.user);
+  // try {
+  //   const user = await prisma.user.findUnique({
+  //     where: {
+  //       id: Number(userId),
+  //     },
+  //   });
 
-    res.status(200).json(user);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json(error.message);
-  }
+  //   res.status(200).json(user);
+  // } catch (error) {
+  //   console.error(error);
+  //   res.status(500).json(error.message);
+  // }
 }
 
 // PUT /api/users/[userId]
 async function handlePUT(userId, data, res) {
-  const {login, password, full_name, email, profile_picture, role } = data;
-  try {
-    const user = await prisma.user.update({
-      where: { id: Number(userId) },
-      data: {
-        login: login,
-        password: password,
-        full_name: full_name,
-        email: email,
-        profile_picture: profile_picture,
-        role: role,
-      },
-    });
-    res.status(200).json(user);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json(error.message);
-  }
+  const { login, password, full_name, email, profile_picture, role } = data;
+  const dataToUpdate = {
+    login,
+    password,
+    full_name,
+    email,
+    profile_picture,
+    role,
+  };
+
+  SimpleREST.update(res, userId, dataToUpdate, prisma.user);
+  // try {
+  //   const user = await prisma.user.update({
+  //     where: { id: Number(userId) },
+  //     data: {
+  //       login: login,
+  //       password: password,
+  //       full_name: full_name,
+  //       email: email,
+  //       profile_picture: profile_picture,
+  //       role: role,
+  //     },
+  //   });
+  //   res.status(200).json(user);
+  // } catch (error) {
+  //   console.error(error);
+  //   res.status(500).json(error.message);
+  // }
 }
 
 // DELETE /api/users/[userId]
 async function handleDELETE(userId, res) {
-  try {
-    const user = await prisma.user.delete({
-      where: { id: Number(userId) },
-    });
+  SimpleREST.delete(res, userId, prisma.user);
+  // try {
+  //   const user = await prisma.user.delete({
+  //     where: { id: Number(userId) },
+  //   });
 
-    res.status(200).json(user);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json(error.message);
-  }
+  //   res.status(200).json(user);
+  // } catch (error) {
+  //   console.error(error);
+  //   res.status(500).json(error.message);
+  // }
 }

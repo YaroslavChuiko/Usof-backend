@@ -1,4 +1,5 @@
 import prisma from '../../../lib/prisma';
+import SimpleREST from '../../../logic/SimpleREST';
 
 // /api/users
 export default async function handler(req, res) {
@@ -66,39 +67,49 @@ function getOptions(queryParams) {
 async function handleGET(req, res) {
   const options = getOptions(req.query);
   // console.log(options);
+  SimpleREST.getList(req, res, getOptions, prisma.user)
 
-  try {
-    const users = await prisma.user.findMany(options);
-    const countUsers = await prisma.user.count({ where: options.where });
+  // try {
+  //   const users = await prisma.user.findMany(options);
+  //   const countUsers = await prisma.user.count({ where: options.where });
 
-    res.setHeader('X-Total-Count', countUsers);
-    res.setHeader('Access-Control-Expose-Headers', 'X-Total-Count');
-    res.status(200).json(users);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json(error.message);
-  }
+  //   res.setHeader('X-Total-Count', countUsers);
+  //   res.setHeader('Access-Control-Expose-Headers', 'X-Total-Count');
+  //   res.status(200).json(users);
+  // } catch (error) {
+  //   console.error(error);
+  //   res.status(500).json(error.message);
+  // }
 }
 
 // POST /api/users/
 async function handlePOST(data, res) {
   const { login, password, full_name, email, profile_picture, role } = data;
   // console.log(data);
-
-  try {
-    const newUser = await prisma.user.create({
-      data: {
-        login: login,
-        password: password,
-        full_name: full_name,
-        email: email,
-        profile_picture: profile_picture,
-        role: role,
-      },
-    });
-    res.status(200).json(newUser);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json(error.message);
+  const newUserData = {
+    login,
+    password,
+    full_name,
+    email,
+    profile_picture,
+    role,
   }
+  SimpleREST.create(res, newUserData, prisma.user);
+
+  // try {
+  //   const newUser = await prisma.user.create({
+  //     data: {
+  //       login: login,
+  //       password: password,
+  //       full_name: full_name,
+  //       email: email,
+  //       profile_picture: profile_picture,
+  //       role: role,
+  //     },
+  //   });
+  //   res.status(200).json(newUser);
+  // } catch (error) {
+  //   console.error(error);
+  //   res.status(500).json(error.message);
+  // }
 }
