@@ -1,13 +1,15 @@
 import prisma from '../../../lib/prisma';
-import { checkUnique, validateData } from '../../../logic/validation';
-import { TYPE_SUCCESS } from '../../../util/const';
+import bcrypt from 'bcrypt';
+import { checkUnique, validateData } from '../../../util/validation';
+import { SAULT_ROUNDS, TYPE_SUCCESS } from '../../../util/const';
+import SimpleCRUD from '../../../logic/SimpleCRUD';
 
 // /api/auth/register
 export default async function handler(req, res) {
   if (req.method === 'POST') {
     handlePOST(res, req.body);
   } else {
-    throw new Error(`The HTTP ${req.method} method is not supported at this route.`);
+    res.status(405).end(`The HTTP ${req.method} method is not supported at this route.`);
   }
 }
 
@@ -16,22 +18,23 @@ async function handlePOST(res, data) {
 
   try {
     result = await validate(data);
+
     if (result.type === TYPE_SUCCESS) {
       //check email is real
       // create user
       const { login, password, firstName, lastName, email } = data;
-  
-      await prisma.user.create({
-        data: {
-          login,
-          password,
-          full_name: `${firstName} ${lastName}`,
-          email,
-          profile_picture: 'test.png',
-          role: 'user',
-        }
-      });
+      const hash = bcrypt.hashSync(password, SAULT_ROUNDS);
+      const newUserData = {
+        login,
+        password: hash,
+        full_name: `${firstName} ${lastName}`,
+        email,
+        profile_picture: 'test.png',
+        role: 'user',
+      };
+      const newUser = await SimpleCRUD.create(newUserData, prisma.user)
     }
+    
     res.status(200).json(result);
   } catch (error) {
     res.status(500).json(error.message);
