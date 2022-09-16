@@ -1,5 +1,3 @@
-import prisma from '../lib/prisma';
-
 class SimpleCRUD {
   constructor() {}
 
@@ -21,12 +19,6 @@ class SimpleCRUD {
 
     return entity;
   }
-
-  // GET http://my.api.url/posts?id=123&id=456&id=789
-  // getMany() {}
-
-  // // GET http://my.api.url/posts?author_id=345
-  // getManyReference() {}
 
   // POST http://my.api.url/posts
   static async create(data, prismaModelEntity) {
