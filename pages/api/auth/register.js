@@ -1,8 +1,11 @@
 import prisma from '../../../lib/prisma';
 import bcrypt from 'bcrypt';
+import crypto from 'crypto';
 import { checkUnique, validateData } from '../../../util/validation';
 import { SAULT_ROUNDS, TYPE_SUCCESS } from '../../../util/const';
 import SimpleCRUD from '../../../logic/SimpleCRUD';
+import { sendEmailVerify } from '../../../util/sendEmail';
+import { generateEmailVerifyToken } from '../../../util/auth';
 
 // /api/auth/register
 export default async function handler(req, res) {
@@ -20,10 +23,9 @@ async function handlePOST(res, data) {
     result = await validate(data);
 
     if (result.type === TYPE_SUCCESS) {
-      //check email is real
-      // create user
       const { login, password, firstName, lastName, email } = data;
       const hash = bcrypt.hashSync(password, SAULT_ROUNDS);
+      const token = generateEmailVerifyToken();
       const newUserData = {
         login,
         password: hash,
@@ -31,12 +33,17 @@ async function handlePOST(res, data) {
         email,
         profile_picture: 'test.png',
         role: 'user',
+        token: {
+          create: { token: token },
+        },
       };
-      const newUser = await SimpleCRUD.create(newUserData, prisma.user)
+      const newUser = await SimpleCRUD.create(newUserData, prisma.user);
+      await sendEmailVerify(newUser.id, token, newUser.email);
     }
-    
+
     res.status(200).json(result);
   } catch (error) {
+    console.log(error);
     res.status(500).json(error.message);
   }
 }
@@ -51,10 +58,6 @@ async function validate(data) {
   } catch (error) {
     throw error;
   }
-  // approve email
 
   return result;
 }
-
-
-
