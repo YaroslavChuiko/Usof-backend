@@ -108,7 +108,7 @@ async function handlePOST(data, res) {
   try {
     const newPost = await SimpleCRUD.create(newPostData, prisma.post);
     
-    res.status(200).json(newPost);
+    res.status(201).json(newPost);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Database error' });
