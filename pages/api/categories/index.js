@@ -1,4 +1,5 @@
 import prisma from '../../../lib/prisma';
+import SimpleCRUD from '../../../logic/SimpleCRUD';
 
 // /api/categories
 export default async function handler(req, res) {
@@ -7,7 +8,7 @@ export default async function handler(req, res) {
   } else if (req.method === 'POST') {
     handlePOST(req.body, res);
   } else {
-    throw new Error(`The HTTP ${req.method} method is not supported at this route.`);
+    res.status(405).end(`The HTTP ${req.method} method is not supported at this route.`);
   }
 }
 
@@ -66,36 +67,33 @@ function getOptions(queryParams) {
 // GET /api/categories/
 async function handleGET(req, res) {
   const options = getOptions(req.query);
-  // console.log(options);
 
   try {
-    const categories = await prisma.category.findMany(options);
-    const countCategories = await prisma.category.count({ where: options.where });
+    const [categories, countCategories] = await SimpleCRUD.getList(options, prisma.category);
 
     res.setHeader('X-Total-Count', countCategories);
     res.setHeader('Access-Control-Expose-Headers', 'X-Total-Count');
     res.status(200).json(categories);
   } catch (error) {
     console.error(error);
-    res.status(500).json(error.message);
+    res.status(500).json({ message: 'Database error' });
   }
 }
 
 // POST /api/categories/
 async function handlePOST(data, res) {
   const { title, description } = data;
-  // console.log(data);
+  const newCategoryData = {
+    title,
+    description,
+  };
 
   try {
-    const newCategory = await prisma.category.create({
-      data: {
-        title,
-        description,
-      },
-    });
+    const newCategory = await SimpleCRUD.create(newCategoryData, prisma.category);
+    
     res.status(200).json(newCategory);
   } catch (error) {
     console.error(error);
-    res.status(500).json(error.message);
+    res.status(500).json({ message: 'Database error' });
   }
 }
