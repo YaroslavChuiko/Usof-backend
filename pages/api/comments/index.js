@@ -1,4 +1,5 @@
 import prisma from '../../../lib/prisma';
+import SimpleCRUD from '../../../logic/SimpleCRUD';
 
 // /api/comments
 export default async function handler(req, res) {
@@ -7,7 +8,7 @@ export default async function handler(req, res) {
   } else if (req.method === 'POST') {
     handlePOST(req.body, res);
   } else {
-    throw new Error(`The HTTP ${req.method} method is not supported at this route.`);
+    res.status(405).end(`The HTTP ${req.method} method is not supported at this route.`);
   }
 }
 
@@ -66,38 +67,35 @@ function getOptions(queryParams) {
 // GET /api/comments/
 async function handleGET(req, res) {
   const options = getOptions(req.query);
-  // console.log(options);
 
   try {
-    const comments = await prisma.comment.findMany(options);
-    const countComments = await prisma.comment.count({ where: options.where });
+    const [comments, countComments] = await SimpleCRUD.getList(options, prisma.comment);
 
     res.setHeader('X-Total-Count', countComments);
     res.setHeader('Access-Control-Expose-Headers', 'X-Total-Count');
     res.status(200).json(comments);
   } catch (error) {
     console.error(error);
-    res.status(500).json(error.message);
+    res.status(500).json({ message: 'Database error' });
   }
 }
 
 // POST /api/comments/
 async function handlePOST(data, res) {
   const { author_id, post_id, content, status } = data;
-  // console.log(data);
+  const newCommentData = {
+    author_id,
+    post_id,
+    content,
+    status,
+  };
 
   try {
-    const newComment = await prisma.comment.create({
-      data: {
-        author_id: author_id,
-        post_id: post_id,
-        content: content,
-        status: status,
-      },
-    });
+    const newComment = await SimpleCRUD.create(newCommentData, prisma.comment);
+
     res.status(200).json(newComment);
   } catch (error) {
     console.error(error);
-    res.status(500).json(error.message);
+    res.status(500).json({ message: 'Database error' });
   }
 }
