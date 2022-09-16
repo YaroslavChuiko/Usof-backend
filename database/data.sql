@@ -2,7 +2,7 @@ USE usof;
 
 INSERT INTO user (login, password, full_name, email, profile_picture, role)
 VALUES
-  ('ychuiko', '1111', 'Yaroslav Chuiko', 'jarik.tchuicko@gmail.com', 'test.png', 'admin'),
+  ('NewUser122', 'stri1Ang', 'John Doe', 'test1@ex2amp1l2e.com', 'test.png', 'admin'),
   ('Bret', '1111', 'Leanne Graham', 'Sincere@april.biz', 'test.png', 'user'),
   ('Antonette', '1111', 'Ervin Howell', 'Shanna@melissa.tv', 'test.png', 'user'),
   ('Samantha', '1111', 'Clementine Bauch', 'Nathan@yesenia.net', 'test.png', 'user'),
