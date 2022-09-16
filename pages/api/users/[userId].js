@@ -1,6 +1,6 @@
 import prisma from '../../../lib/prisma';
 import SimpleCRUD from '../../../logic/SimpleCRUD';
-import { authCheckAdmin } from '../../../util/auth';
+import { withAuthAdmin } from '../../../util/auth';
 
 // /api/users/[userId]
 export default async function handler(req, res) {
@@ -54,8 +54,8 @@ async function handlePUT(userId, data, res) {
 
 // DELETE /api/users/[userId]
 async function handleDELETE(req, res, userId) {
-  const decoded = authCheckAdmin(req, res);
-  console.log(decoded);
+  // const decoded = withAuthAdmin(req, res);
+  // console.log(decoded);
 
   try {
     const deletedUser = await SimpleCRUD.delete(userId, prisma.user);

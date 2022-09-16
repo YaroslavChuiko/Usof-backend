@@ -1,5 +1,9 @@
+import bcrypt from 'bcrypt';
 import prisma from '../../../lib/prisma';
 import SimpleCRUD from '../../../logic/SimpleCRUD';
+import { generateEmailVerifyToken } from '../../../util/auth';
+import { SAULT_ROUNDS } from '../../../util/const';
+import { sendEmailVerify } from '../../../util/sendEmail';
 
 // /api/users
 export default async function handler(req, res) {
@@ -81,19 +85,25 @@ async function handleGET(req, res) {
 // POST /api/users/
 async function handlePOST(data, res) {
   const { login, password, full_name, email, profile_picture, role } = data;
+  const hash = bcrypt.hashSync(password, SAULT_ROUNDS);
+  const token = generateEmailVerifyToken();
   const newUserData = {
     login,
-    password,
+    password: hash,
     full_name,
     email,
     profile_picture,
     role,
+    token: {
+      create: { token: token },
+    },
   };
 
   try {
     const newUser = await SimpleCRUD.create(newUserData, prisma.user);
+    await sendEmailVerify(newUser.id, token, newUser.email);
 
-    res.status(200).json(newUser);
+    res.status(201).json(newUser);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Database error' });
