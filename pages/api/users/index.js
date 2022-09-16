@@ -1,5 +1,5 @@
 import prisma from '../../../lib/prisma';
-import SimpleREST from '../../../logic/SimpleREST';
+import SimpleCRUD from '../../../logic/SimpleCRUD';
 
 // /api/users
 export default async function handler(req, res) {
@@ -8,14 +8,14 @@ export default async function handler(req, res) {
   } else if (req.method === 'POST') {
     handlePOST(req.body, res);
   } else {
-    throw new Error(`The HTTP ${req.method} method is not supported at this route.`);
+    res.status(405).end(`The HTTP ${req.method} method is not supported at this route.`);
   }
 }
 
 function getOptions(queryParams) {
   const options = {};
   const { _start, _end, _sort, _order, id, login, role, q } = queryParams;
-  console.log('queryParams User', queryParams)
+  console.log('queryParams User', queryParams);
   if (_start && _end) {
     options.skip = Number(_start);
     options.take = _end - _start;
@@ -26,9 +26,8 @@ function getOptions(queryParams) {
     };
   }
   if (id) {
-    // console.log(id);
     let idNum = Array.isArray(id) ? id.map(item => Number(item)) : [Number(id)];
-    console.log('idNum User',idNum);
+    console.log('idNum User', idNum);
 
     options.where = {
       id: { in: idNum }, //??
@@ -51,13 +50,13 @@ function getOptions(queryParams) {
     options.where = {
       OR: [
         {
-          login: { contains: q},
+          login: { contains: q },
         },
         {
-          full_name: { contains: q},
-        }
-      ]
-    }
+          full_name: { contains: q },
+        },
+      ],
+    };
   }
 
   return options;
@@ -66,26 +65,22 @@ function getOptions(queryParams) {
 // GET /api/users/
 async function handleGET(req, res) {
   const options = getOptions(req.query);
-  // console.log(options);
-  SimpleREST.getList(req, res, getOptions, prisma.user)
 
-  // try {
-  //   const users = await prisma.user.findMany(options);
-  //   const countUsers = await prisma.user.count({ where: options.where });
+  try {
+    const [users, countUsers] = await SimpleCRUD.getList(options, prisma.user);
 
-  //   res.setHeader('X-Total-Count', countUsers);
-  //   res.setHeader('Access-Control-Expose-Headers', 'X-Total-Count');
-  //   res.status(200).json(users);
-  // } catch (error) {
-  //   console.error(error);
-  //   res.status(500).json(error.message);
-  // }
+    res.setHeader('X-Total-Count', countUsers);
+    res.setHeader('Access-Control-Expose-Headers', 'X-Total-Count');
+    res.status(200).json(users);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Database error' });
+  }
 }
 
 // POST /api/users/
 async function handlePOST(data, res) {
   const { login, password, full_name, email, profile_picture, role } = data;
-  // console.log(data);
   const newUserData = {
     login,
     password,
@@ -93,23 +88,14 @@ async function handlePOST(data, res) {
     email,
     profile_picture,
     role,
-  }
-  SimpleREST.create(res, newUserData, prisma.user);
+  };
 
-  // try {
-  //   const newUser = await prisma.user.create({
-  //     data: {
-  //       login: login,
-  //       password: password,
-  //       full_name: full_name,
-  //       email: email,
-  //       profile_picture: profile_picture,
-  //       role: role,
-  //     },
-  //   });
-  //   res.status(200).json(newUser);
-  // } catch (error) {
-  //   console.error(error);
-  //   res.status(500).json(error.message);
-  // }
+  try {
+    const newUser = await SimpleCRUD.create(newUserData, prisma.user);
+
+    res.status(200).json(newUser);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Database error' });
+  }
 }
