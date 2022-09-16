@@ -1,4 +1,5 @@
 import Cookies from 'cookies';
+import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import { TOKEN_EXPIRE_SEC, TOKEN_SECRET } from './const';
 
@@ -19,13 +20,35 @@ export function verifyAccessToken(token) {
   return decoded;
 }
 
-export function authCheckAdmin(req, res) {
+export function generateEmailVerifyToken() {
+  return crypto.randomBytes(64).toString('hex');
+}
+
+export function withAuthUser(req, res) {
   const cookies = new Cookies(req, res);
   const token = cookies.get('token');
   let decoded;
 
   if (!token) {
-    res.status(401).json({ message: 'Unauthorized' });
+    res.status(401).json({ message: 'Only for authorized users' });
+  }
+
+  try {
+    decoded = verifyAccessToken(token);
+  } catch (error) {
+    res.status(401).json({ message: 'Invalid Token' });
+  }
+
+  return decoded;
+}
+
+export function withAuthAdmin(req, res) {
+  const cookies = new Cookies(req, res);
+  const token = cookies.get('token');
+  let decoded;
+
+  if (!token) {
+    res.status(401).json({ message: 'Only for authorized users' });
   }
 
   try {
