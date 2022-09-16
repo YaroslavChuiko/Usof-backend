@@ -1,35 +1,14 @@
 import prisma from '../../../lib/prisma';
-
-// const { PrismaClient } = require('@prisma/client')
-// const prisma = new PrismaClient();
-
-// async function main() {
-//   // ... you will write your Prisma Client queries here
-//   const allUsers = await prisma.cards.findMany();
-//   console.log(allUsers);
-// }
-
-// main()
-//   .then(async () => {
-//     await prisma.$disconnect();
-//   })
-//   .catch(async e => {
-//     console.error(e);
-//     await prisma.$disconnect();
-//     process.exit(1);
-//   });
+import SimpleCRUD from '../../../logic/SimpleCRUD';
 
 // /api/posts
 export default async function handler(req, res) {
   if (req.method === 'GET') {
-    // getlist getMany getManyReference
-    // /api/posts?_end=10&_order=ASC&_sort=id&_start=0
     handleGET(req, res);
   } else if (req.method === 'POST') {
-    // Create a record
     handlePOST(req.body, res);
   } else {
-    throw new Error(`The HTTP ${req.method} method is not supported at this route.`);
+    res.status(405).end(`The HTTP ${req.method} method is not supported at this route.`);
   }
 }
 
@@ -96,14 +75,12 @@ function getOptions(queryParams) {
 // GET /api/posts
 async function handleGET(req, res) {
   const options = getOptions(req.query);
-  // console.log(options);
 
   try {
     let posts = await prisma.post.findMany(options);
     posts = posts.map(post => {
       return { ...post, post_categories: post.post_categories.map(category => category.category.id) };
     });
-    // console.log('posts', posts[0].post_categories)
     const countPosts = await prisma.post.count({ where: options.where });
 
     res.setHeader('X-Total-Count', countPosts);
@@ -111,30 +88,29 @@ async function handleGET(req, res) {
     res.status(200).json(posts);
   } catch (error) {
     console.error(error);
-    res.status(500).json(error.message);
+    res.status(500).json({ message: 'Database error' });
   }
 }
 
 // POST /api/posts
 async function handlePOST(data, res) {
   const { author_id, title, content, status, post_categories } = data;
-  // console.log(data);
+  const newPostData = {
+    author_id: author_id,
+    title: title,
+    content: content,
+    status: status,
+    post_categories: {
+      createMany: { data: post_categories.map(item => ({ category_id: item })) }, // create row for every category in join table
+    },
+  };
 
   try {
-    const newPost = await prisma.post.create({
-      data: {
-        author_id: author_id,
-        title: title,
-        content: content,
-        status: status,
-        post_categories: {
-          createMany: { data: post_categories.map(item => ({ category_id: item })) }, // create row for every category in join table
-        },
-      },
-    });
+    const newPost = await SimpleCRUD.create(newPostData, prisma.post);
+    
     res.status(200).json(newPost);
   } catch (error) {
     console.error(error);
-    res.status(500).json(error.message);
+    res.status(500).json({ message: 'Database error' });
   }
 }
