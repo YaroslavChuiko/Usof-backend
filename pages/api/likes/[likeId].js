@@ -1,4 +1,5 @@
 import prisma from '../../../lib/prisma';
+import SimpleCRUD from '../../../logic/SimpleCRUD';
 
 // /api/likes/[likeId]
 export default async function handler(req, res) {
@@ -7,12 +8,11 @@ export default async function handler(req, res) {
   if (req.method === 'GET') {
     // handleGET(likeId, res); // getOne
   } else if (req.method === 'PUT') {
-    console.log('PUT', req.body);
-    // handlePUT(likeId, req.body, res); // Create a record
+    // console.log('PUT', req.body);
   } else if (req.method === 'DELETE') {
     handleDELETE(likeId, res); // delete
   } else {
-    throw new Error(`The HTTP ${req.method} method is not supported at this route.`);
+    res.status(405).end(`The HTTP ${req.method} method is not supported at this route.`);
   }
 }
 
@@ -55,13 +55,11 @@ export default async function handler(req, res) {
 // DELETE /api/likes/[likeId]
 async function handleDELETE(likeId, res) {
   try {
-    const like = await prisma.like_entity.delete({
-      where: { id: Number(likeId) },
-    });
+    const deletedLike = await SimpleCRUD.delete(likeId, prisma.like_entity);
 
-    res.status(200).json(like);
+    res.status(200).json(deletedLike);
   } catch (error) {
     console.error(error);
-    res.status(500).json(error.message);
+    res.status(500).json({ message: 'Database error' });
   }
 }

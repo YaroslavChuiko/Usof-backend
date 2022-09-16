@@ -1,4 +1,5 @@
 import prisma from '../../../lib/prisma';
+import SimpleCRUD from '../../../logic/SimpleCRUD';
 
 // /api/likes
 export default async function handler(req, res) {
@@ -7,13 +8,13 @@ export default async function handler(req, res) {
   } else if (req.method === 'POST') {
     handlePOST(req.body, res);
   } else {
-    throw new Error(`The HTTP ${req.method} method is not supported at this route.`);
+    res.status(405).end(`The HTTP ${req.method} method is not supported at this route.`);
   }
 }
 
 function getOptions(queryParams) {
   const options = {};
-  const { _start, _end, _sort, _order, id, author_id, target_post, target_comment, type} = queryParams;
+  const { _start, _end, _sort, _order, id, author_id, target_post, target_comment, type } = queryParams;
   console.log('queryParams like', queryParams);
   if (_start && _end) {
     options.skip = Number(_start);
@@ -70,18 +71,16 @@ function getOptions(queryParams) {
 // GET /api/likes/[likeId]
 async function handleGET(req, res) {
   const options = getOptions(req.query);
-  // console.log(options);
 
   try {
-    const likes = await prisma.like_entity.findMany(options);
-    const countLikes = await prisma.like_entity.count({ where: options.where });
+    const [likes, countLikes] = await SimpleCRUD.getList(options, prisma.like_entity);
 
     res.setHeader('X-Total-Count', countLikes);
     res.setHeader('Access-Control-Expose-Headers', 'X-Total-Count');
     res.status(200).json(likes);
   } catch (error) {
     console.error(error);
-    res.status(500).json(error.message);
+    res.status(500).json({ message: 'Database error' });
   }
 }
 
@@ -102,6 +101,6 @@ async function handleGET(req, res) {
 //     res.status(200).json(newlike);
 //   } catch (error) {
 //     console.error(error);
-//     res.status(500).json(error.message);
+//     res.status(500).json({ message: 'Database error' });
 //   }
 // }
