@@ -35,9 +35,11 @@ async function login(res, req) {
 
   if (result.type === TYPE_SUCCESS) {
     const tokenPayload = {
+      id: user.id,
       login: user.login,
       fullName: user.full_name,
       email: user.email,
+      active: user.active,
       role: user.role,
     };
     const token = generateAccessToken(tokenPayload);
