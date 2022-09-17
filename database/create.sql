@@ -1,5 +1,6 @@
 CREATE DATABASE IF NOT EXISTS usof;
 
+SET GLOBAL event_scheduler = ON;
 USE usof;
 
 -- how to save password
@@ -19,7 +20,21 @@ CREATE TABLE IF NOT EXISTS user (
   role ENUM('user', 'admin') DEFAULT 'user' NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS token (
+CREATE TABLE IF NOT EXISTS password_token (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT UNIQUE NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
+  token CHAR(128) UNIQUE NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+CREATE EVENT password_token_cleaning ON SCHEDULE EVERY 30 MINUTE ENABLE
+  DO 
+  DELETE FROM password_token
+  WHERE created_at < CURRENT_TIMESTAMP - INTERVAL 30 MINUTE;
+
+
+CREATE TABLE IF NOT EXISTS email_token (
   id INT AUTO_INCREMENT PRIMARY KEY,
   user_id INT UNIQUE NOT NULL,
     FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
@@ -31,7 +46,7 @@ CREATE TABLE IF NOT EXISTS post (
   author_id INT NOT NULL,
     FOREIGN KEY (author_id) REFERENCES user(id) ON DELETE CASCADE,
   title VARCHAR(100) NOT NULL, -- ?? size
-  publish_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL, -- ??DATETIME https://dev.mysql.com/doc/refman/8.0/en/timestamp-initialization.html
+  publish_date DATETIME DEFAULT NOW() NOT NULL, -- ??DATETIME https://dev.mysql.com/doc/refman/8.0/en/timestamp-initialization.html
   content VARCHAR(5000), -- ?? type size
   status ENUM('active', 'inactive') DEFAULT 'active',
   rating INT DEFAULT 0 NOT NULL
