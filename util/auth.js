@@ -20,7 +20,7 @@ export function verifyAccessToken(token) {
   return decoded;
 }
 
-export function generateEmailVerifyToken() {
+export function generateToken() {
   return crypto.randomBytes(64).toString('hex');
 }
 
@@ -36,7 +36,7 @@ export function withAuthUser(req, res) {
   try {
     decoded = verifyAccessToken(token);
   } catch (error) {
-    res.status(401).json({ message: 'Invalid Token' });
+    res.status(401).json({ message: 'Invalid Token' }); // ? throw new err with msg and trycatch outside
   }
 
   return decoded;
