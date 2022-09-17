@@ -84,6 +84,7 @@ async function handleGET(req, res) {
 
 // POST /api/users/
 async function handlePOST(data, res) {
+  //?? add repassword (pdf)
   const { login, password, full_name, email, profile_picture, role } = data;
   const hash = bcrypt.hashSync(password, SAULT_ROUNDS);
   const token = generateToken();
