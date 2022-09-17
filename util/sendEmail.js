@@ -33,6 +33,13 @@ export async function sendEmail(email, subject, text = '', html = '') {
 }
 
 export async function sendEmailVerify(userId, token, email) {
+  //? mb get userId from jwt token instead url
+  // ! mb change link to front-end that query to ${process.env.BASE_URL}/api/users/verify/${userId}/${token} and show result
   const html = `Press <a href=${process.env.BASE_URL}/api/users/verify/${userId}/${token}> here </a> to verify your email. Thanks`;
   await sendEmail(email, 'Verify Email', '', html);
+}
+
+export async function sendEmailPasswordReset(token, email) {
+  const html = `<p>You requested for reset password, kindly use this <a href="http://front-end_base_url/reset-password/${token}">link</a> to reset your password</p>`;
+  await sendEmail(email, 'Reset Password Link - siteName.com', '', html);
 }
