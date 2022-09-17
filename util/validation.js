@@ -145,7 +145,7 @@ export function checkUser(user, password) {
 
   if (!(user && bcrypt.compareSync(password, user.password))) {
     result.type = TYPE_ERROR;
-    result.text = 'Login or password is invalid';
+    result.message = 'Login or password is invalid';
     return result;
   }
 
