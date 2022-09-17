@@ -5,7 +5,7 @@ import { checkUnique, validateData } from '../../../util/validation';
 import { SAULT_ROUNDS, TYPE_SUCCESS } from '../../../util/const';
 import SimpleCRUD from '../../../logic/SimpleCRUD';
 import { sendEmailVerify } from '../../../util/sendEmail';
-import { generateEmailVerifyToken } from '../../../util/auth';
+import { generateToken } from '../../../util/auth';
 
 // /api/auth/register
 export default async function handler(req, res) {
@@ -25,7 +25,7 @@ async function handlePOST(res, data) {
     if (result.type === TYPE_SUCCESS) {
       const { login, password, firstName, lastName, email } = data;
       const hash = bcrypt.hashSync(password, SAULT_ROUNDS);
-      const token = generateEmailVerifyToken();
+      const token = generateToken();
       const newUserData = {
         login,
         password: hash,
@@ -33,7 +33,7 @@ async function handlePOST(res, data) {
         email,
         profile_picture: 'test.png',
         role: 'user',
-        token: {
+        email_token: {
           create: { token: token },
         },
       };

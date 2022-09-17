@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import prisma from '../../../lib/prisma';
 import SimpleCRUD from '../../../logic/SimpleCRUD';
-import { generateEmailVerifyToken } from '../../../util/auth';
+import { generateToken } from '../../../util/auth';
 import { SAULT_ROUNDS } from '../../../util/const';
 import { sendEmailVerify } from '../../../util/sendEmail';
 
@@ -86,7 +86,7 @@ async function handleGET(req, res) {
 async function handlePOST(data, res) {
   const { login, password, full_name, email, profile_picture, role } = data;
   const hash = bcrypt.hashSync(password, SAULT_ROUNDS);
-  const token = generateEmailVerifyToken();
+  const token = generateToken();
   const newUserData = {
     login,
     password: hash,
@@ -94,7 +94,7 @@ async function handlePOST(data, res) {
     email,
     profile_picture,
     role,
-    token: {
+    email_token: {
       create: { token: token },
     },
   };
