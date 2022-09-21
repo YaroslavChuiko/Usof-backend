@@ -1,9 +1,14 @@
 import prisma from '../../../lib/prisma';
 import SimpleCRUD from '../../../logic/SimpleCRUD';
+import { withAuthAdmin } from '../../../util/auth';
 
 // /api/likes
 export default async function handler(req, res) {
   if (req.method === 'GET') {
+    const result = withAuthAdmin(req, res);
+    if (!result.success) return;
+    req.user = result.decoded;
+
     handleGET(req, res);
   } else if (req.method === 'POST') {
     handlePOST(req.body, res);
@@ -68,7 +73,7 @@ function getOptions(queryParams) {
   return options;
 }
 
-// GET /api/likes/[likeId]
+// GET /api/likes/
 async function handleGET(req, res) {
   const options = getOptions(req.query);
 

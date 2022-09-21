@@ -12,12 +12,12 @@ export default async function handler(req, res) {
 
 // GET /api/images/[...slug]
 async function handleGET(req, res) {
-  const {slug} = req.query;
+  const { slug } = req.query;
   const imgPath = path.join(process.cwd(), 'public', 'uploads', ...slug);
-  
+
   try {
     const img = fs.readFileSync(imgPath);
-    
+
     res.removeHeader('Content-Type');
     res.setHeader('Content-Type', 'image/png');
 

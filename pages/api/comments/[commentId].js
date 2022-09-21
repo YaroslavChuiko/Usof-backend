@@ -6,19 +6,27 @@ export default async function handler(req, res) {
   const { commentId } = req.query;
 
   if (req.method === 'GET') {
-    handleGET(commentId, res);
+    handleGET(res, commentId);
   } else if (req.method === 'PUT') {
     console.log('PUT', req.body);
-    handlePUT(commentId, req.body, res);
+    const result = withAuthUser(req, res);
+    if (!result.success) return;
+    req.user = result.decoded;
+
+    handlePUT(req, res, commentId);
   } else if (req.method === 'DELETE') {
-    handleDELETE(commentId, res);
+    const result = withAuthUser(req, res);
+    if (!result.success) return;
+    req.user = result.decoded;
+
+    handleDELETE(req, res, commentId);
   } else {
     res.status(405).end(`The HTTP ${req.method} method is not supported at this route.`);
   }
 }
 
 // GET /api/comments/[commentId]
-async function handleGET(commentId, res) {
+async function handleGET(res, commentId) {
   try {
     const comment = await SimpleCRUD.getOne(commentId, prisma.comment);
 
@@ -30,8 +38,13 @@ async function handleGET(commentId, res) {
 }
 
 // PUT /api/comments/[commentId]
-async function handlePUT(commentId, data, res) {
-  const { author_id, post_id, content, status } = data;
+async function handlePUT(req, res, commentId) {
+  const { author_id, post_id, content, status } = req.body;
+
+  if (req.user.role === 'user' && req.user.id != author_id) {
+    return res.status(403).json({ message: "You don't have enough access rights" });
+  }
+
   const dataToUpdate = {
     author_id,
     post_id,
@@ -50,8 +63,16 @@ async function handlePUT(commentId, data, res) {
 }
 
 // DELETE /api/comments/[commentId]
-async function handleDELETE(commentId, res) {
+async function handleDELETE(req, res, commentId) {
   try {
+    if (req.user.role === 'user') {
+      const comment = await SimpleCRUD.getOne(commentId, prisma.comment);
+
+      if (req.user.id != comment.author_id) {
+        return res.status(403).json({ message: "You don't have enough access rights" });
+      }
+    }
+
     const comment = await SimpleCRUD.delete(commentId, prisma.comment);
 
     res.status(200).json(comment);

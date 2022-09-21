@@ -1,12 +1,21 @@
 import prisma from '../../../lib/prisma';
 import SimpleCRUD from '../../../logic/SimpleCRUD';
+import { withAuthAdmin } from '../../../util/auth';
 
 // /api/comments
 export default async function handler(req, res) {
   if (req.method === 'GET') {
+    const result = withAuthAdmin(req, res);
+    if (!result.success) return;
+    req.user = result.decoded;
+
     handleGET(req, res);
   } else if (req.method === 'POST') {
-    handlePOST(req.body, res);
+    const result = withAuthAdmin(req, res);
+    if (!result.success) return;
+    req.user = result.decoded;
+
+    handlePOST(req, res);
   } else {
     res.status(405).end(`The HTTP ${req.method} method is not supported at this route.`);
   }
@@ -81,8 +90,8 @@ async function handleGET(req, res) {
 }
 
 // POST /api/comments/
-async function handlePOST(data, res) {
-  const { author_id, post_id, content, status } = data;
+async function handlePOST(req, res) {
+  const { author_id, post_id, content, status } = req.body;
   const newCommentData = {
     author_id,
     post_id,

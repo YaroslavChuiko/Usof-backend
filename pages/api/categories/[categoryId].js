@@ -1,5 +1,6 @@
 import prisma from '../../../lib/prisma';
 import SimpleCRUD from '../../../logic/SimpleCRUD';
+import { withAuthAdmin } from '../../../util/auth';
 
 // /api/categories/[categoryId]
 export default async function handler(req, res) {
@@ -8,9 +9,17 @@ export default async function handler(req, res) {
   if (req.method === 'GET') {
     handleGET(categoryId, res);
   } else if (req.method === 'PUT') {
-    handlePUT(categoryId, req.body, res);
+    const result = withAuthAdmin(req, res);
+    if (!result.success) return;
+    req.user = result.decoded;
+
+    handlePUT(req, res, categoryId);
   } else if (req.method === 'DELETE') {
-    handleDELETE(categoryId, res);
+    const result = withAuthAdmin(req, res);
+    if (!result.success) return;
+    req.user = result.decoded;
+
+    handleDELETE(res, categoryId);
   } else {
     res.status(405).end(`The HTTP ${req.method} method is not supported at this route.`);
   }
@@ -24,13 +33,13 @@ async function handleGET(categoryId, res) {
     res.status(200).json(category);
   } catch (error) {
     console.error(error);
-    res.status(500).json({message: 'Database error'});
+    res.status(500).json({ message: 'Database error' });
   }
 }
 
 // PUT /api/categories/[categoryId]
-async function handlePUT(categoryId, data, res) {
-  const { title, description } = data;
+async function handlePUT(req, res, categoryId) {
+  const { title, description } = req.body;
   const dataToUpdate = {
     title,
     description,
@@ -42,18 +51,18 @@ async function handlePUT(categoryId, data, res) {
     res.status(200).json(category);
   } catch (error) {
     console.error(error);
-    res.status(500).json({message: 'Database error'});
+    res.status(500).json({ message: 'Database error' });
   }
 }
 
 // DELETE /api/categories/[categoryId]
-async function handleDELETE(categoryId, res) {
+async function handleDELETE(res, categoryId) {
   try {
     const category = await SimpleCRUD.delete(categoryId, prisma.category);
 
     res.status(200).json(category);
   } catch (error) {
     console.error(error);
-    res.status(500).json({message: 'Database error'});
+    res.status(500).json({ message: 'Database error' });
   }
 }

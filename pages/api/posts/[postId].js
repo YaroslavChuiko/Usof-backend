@@ -1,5 +1,6 @@
 import prisma from '../../../lib/prisma';
 import SimpleCRUD from '../../../logic/SimpleCRUD';
+import { withAuthUser } from '../../../util/auth';
 
 // /api/posts/[postid]
 export default async function handler(req, res) {
@@ -9,9 +10,17 @@ export default async function handler(req, res) {
   if (req.method === 'GET') {
     handleGET(postId, res);
   } else if (req.method === 'PUT') {
-    handlePUT(postId, req.body, res);
+    const result = withAuthUser(req, res);
+    if (!result.success) return;
+    req.user = result.decoded;
+
+    handlePUT(req, res, postId);
   } else if (req.method === 'DELETE') {
-    handleDELETE(postId, res);
+    const result = withAuthUser(req, res);
+    if (!result.success) return;
+    req.user = result.decoded;
+
+    handleDELETE(req, res, postId);
   } else {
     res.status(405).end(`The HTTP ${req.method} method is not supported at this route.`);
   }
@@ -37,8 +46,12 @@ async function handleGET(postId, res) {
 }
 
 // PUT /api/posts/[postid]
-async function handlePUT(postId, data, res) {
-  const { status, title, content, post_categories } = data;
+async function handlePUT(req, res, postId) {
+  const { author_id, status, title, content, post_categories } = req.body;
+
+  if (req.user.role === 'user' && req.user.id != author_id) {
+    return res.status(403).json({ message: "You don't have enough access rights" });
+  }
 
   try {
     // del all associations
@@ -70,8 +83,16 @@ async function handlePUT(postId, data, res) {
 }
 
 // DELETE /api/posts/[postid]
-async function handleDELETE(postId, res) {
+async function handleDELETE(req, res, postId) {
   try {
+    if (req.user.role === 'user') {
+      const post = await SimpleCRUD.getOne(postId, prisma.post);
+
+      if (req.user.id != post.author_id) {
+        return res.status(403).json({ message: "You don't have enough access rights" });
+      }
+    }
+
     const deletedPost = await SimpleCRUD.delete(postId, prisma.post);
 
     res.status(200).json(deletedPost);

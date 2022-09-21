@@ -1,12 +1,17 @@
 import prisma from '../../../lib/prisma';
 import SimpleCRUD from '../../../logic/SimpleCRUD';
+import { withAuthUser } from '../../../util/auth';
 
 // /api/posts
 export default async function handler(req, res) {
   if (req.method === 'GET') {
     handleGET(req, res);
   } else if (req.method === 'POST') {
-    handlePOST(req.body, res);
+    const result = withAuthUser(req, res);
+    if (!result.success) return;
+    req.user = result.decoded;
+
+    handlePOST(req, res);
   } else {
     res.status(405).end(`The HTTP ${req.method} method is not supported at this route.`);
   }
@@ -93,8 +98,13 @@ async function handleGET(req, res) {
 }
 
 // POST /api/posts
-async function handlePOST(data, res) {
-  const { author_id, title, content, status, post_categories } = data;
+async function handlePOST(req, res) {
+  const { author_id, title, content, status, post_categories } = req.body;
+
+  if (req.user.role === 'user' && req.user.id != author_id) {
+    return res.status(403).json({ message: "You don't have enough access rights" });
+  }
+
   const newPostData = {
     author_id: author_id,
     title: title,
@@ -107,7 +117,7 @@ async function handlePOST(data, res) {
 
   try {
     const newPost = await SimpleCRUD.create(newPostData, prisma.post);
-    
+
     res.status(201).json(newPost);
   } catch (error) {
     console.error(error);

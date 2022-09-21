@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import prisma from '../../../lib/prisma';
 import SimpleCRUD from '../../../logic/SimpleCRUD';
-import { generateToken } from '../../../util/auth';
+import { generateToken, withAuthAdmin } from '../../../util/auth';
 import { SAULT_ROUNDS } from '../../../util/const';
 import { sendEmailVerify } from '../../../util/sendEmail';
 
@@ -10,6 +10,10 @@ export default async function handler(req, res) {
   if (req.method === 'GET') {
     handleGET(req, res);
   } else if (req.method === 'POST') {
+    const result = withAuthAdmin(req, res);
+    if (!result.success) return;
+    req.user = result.decoded;
+
     handlePOST(req.body, res);
   } else {
     res.status(405).end(`The HTTP ${req.method} method is not supported at this route.`);

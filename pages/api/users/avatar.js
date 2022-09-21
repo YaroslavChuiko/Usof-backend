@@ -13,19 +13,6 @@ export const config = {
   },
 };
 
-// /api/users/avatar
-export default async function handler(req, res) {
-  if (req.method === 'PATCH') {
-    const result = withAuthUser(req, res);
-    if (!result.success) return;
-    req.user = result.decoded;
-
-    handlePATCH(req, res);
-  } else {
-    res.status(405).end(`The HTTP ${req.method} method is not supported at this route.`);
-  }
-}
-
 const options = {
   multiples: false,
   keepExtensions: true,
@@ -41,31 +28,16 @@ const options = {
   },
 };
 
-const saveAvatar = async (file, userId) => {
-  const avatarPath = path.join('user', `${userId}`, 'avatar');
-  const filePath = path.join(UPLOADS_PATH, avatarPath);
-  const data = fs.readFileSync(file.filepath);
+// /api/users/avatar
+export default async function handler(req, res) {
+  if (req.method === 'PATCH') {
+    const result = withAuthUser(req, res);
+    if (!result.success) return;
+    req.user = result.decoded;
 
-  if (!fs.existsSync(filePath)) {
-    fs.mkdirSync(filePath, { recursive: true });
-  }
-  // fs.writeFileSync(path.join(filePath, getFileName(file)), data);
-  fs.writeFileSync(path.join(filePath, file.newFilename), data);
-  fs.unlinkSync(file.filepath);
-
-  return path.join(avatarPath, file.newFilename);
-};
-
-// const getFileName = file => {
-//   let filename = uuidv4() + '-' + new Date().getTime();
-//   filename += '.' + file.originalFilename.substring(file.originalFilename.lastIndexOf('.') + 1, file.originalFilename.length);
-
-//   return filename;
-// };
-
-function deleteOldAvatar(avatarPath) {
-  if (avatarPath !== DEFAULT_AVATAR_PATH) {
-    fs.rmSync(path.join(UPLOADS_PATH, avatarPath));
+    handlePATCH(req, res);
+  } else {
+    res.status(405).end(`The HTTP ${req.method} method is not supported at this route.`);
   }
 }
 
@@ -83,7 +55,7 @@ async function handlePATCH(req, res) {
       const userId = req.user.id;
       const avatarPath = await saveAvatar(files.avatar, userId);
 
-      const user = await SimpleCRUD.getOne(userId, prisma.user); // gen user before updated profile_picture
+      const user = await SimpleCRUD.getOne(userId, prisma.user); // get user before update profile_picture
 
       const dataToUpdate = {
         profile_picture: avatarPath,
@@ -112,4 +84,32 @@ async function handlePATCH(req, res) {
   //   }
   //   // Everything went fine.
   // });
+}
+
+const saveAvatar = async (file, userId) => {
+  const avatarPath = path.join('user', `${userId}`, 'avatar');
+  const filePath = path.join(UPLOADS_PATH, avatarPath);
+  const data = fs.readFileSync(file.filepath);
+
+  if (!fs.existsSync(filePath)) {
+    fs.mkdirSync(filePath, { recursive: true });
+  }
+
+  fs.writeFileSync(path.join(filePath, file.newFilename), data);
+  fs.unlinkSync(file.filepath);
+
+  return path.join(avatarPath, file.newFilename);
+};
+
+// const getFileName = file => {
+//   let filename = uuidv4() + '-' + new Date().getTime();
+//   filename += '.' + file.originalFilename.substring(file.originalFilename.lastIndexOf('.') + 1, file.originalFilename.length);
+
+//   return filename;
+// };
+
+function deleteOldAvatar(avatarPath) {
+  if (avatarPath !== DEFAULT_AVATAR_PATH) {
+    fs.rmSync(path.join(UPLOADS_PATH, avatarPath));
+  }
 }

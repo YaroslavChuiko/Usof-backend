@@ -1,12 +1,17 @@
 import prisma from '../../../lib/prisma';
 import SimpleCRUD from '../../../logic/SimpleCRUD';
+import { withAuthAdmin } from '../../../util/auth';
 
 // /api/categories
 export default async function handler(req, res) {
   if (req.method === 'GET') {
     handleGET(req, res);
   } else if (req.method === 'POST') {
-    handlePOST(req.body, res);
+    const result = withAuthAdmin(req, res);
+    if (!result.success) return;
+    req.user = result.decoded;
+
+    handlePOST(req, res);
   } else {
     res.status(405).end(`The HTTP ${req.method} method is not supported at this route.`);
   }
@@ -81,8 +86,8 @@ async function handleGET(req, res) {
 }
 
 // POST /api/categories/
-async function handlePOST(data, res) {
-  const { title, description } = data;
+async function handlePOST(req, res) {
+  const { title, description } = req.body;
   const newCategoryData = {
     title,
     description,
@@ -90,7 +95,7 @@ async function handlePOST(data, res) {
 
   try {
     const newCategory = await SimpleCRUD.create(newCategoryData, prisma.category);
-    
+
     res.status(201).json(newCategory);
   } catch (error) {
     console.error(error);

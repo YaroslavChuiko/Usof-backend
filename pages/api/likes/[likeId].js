@@ -1,5 +1,6 @@
 import prisma from '../../../lib/prisma';
 import SimpleCRUD from '../../../logic/SimpleCRUD';
+import { withAuthUser } from '../../../util/auth';
 
 // /api/likes/[likeId]
 export default async function handler(req, res) {
@@ -10,6 +11,10 @@ export default async function handler(req, res) {
   } else if (req.method === 'PUT') {
     // console.log('PUT', req.body);
   } else if (req.method === 'DELETE') {
+    const result = withAuthUser(req, res);
+    if (!result.success) return;
+    req.user = result.decoded;
+
     handleDELETE(likeId, res); // delete
   } else {
     res.status(405).end(`The HTTP ${req.method} method is not supported at this route.`);
