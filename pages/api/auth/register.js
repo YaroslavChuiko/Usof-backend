@@ -1,11 +1,10 @@
-import prisma from '../../../lib/prisma';
 import bcrypt from 'bcrypt';
-import crypto from 'crypto';
-import { checkUnique, validateData } from '../../../util/validation';
-import { SAULT_ROUNDS, TYPE_SUCCESS } from '../../../util/const';
+import prisma from '../../../lib/prisma';
 import SimpleCRUD from '../../../logic/SimpleCRUD';
-import { sendEmailVerify } from '../../../util/sendEmail';
 import { generateToken } from '../../../util/auth';
+import { DEFAULT_AVATAR_PATH, SAULT_ROUNDS, TYPE_SUCCESS } from '../../../util/const';
+import { sendEmailVerify } from '../../../util/sendEmail';
+import { checkUnique, validateData } from '../../../util/validation';
 
 // /api/auth/register
 export default async function handler(req, res) {
@@ -31,7 +30,7 @@ async function handlePOST(res, data) {
         password: hash,
         full_name: `${firstName} ${lastName}`,
         email,
-        profile_picture: 'test.png',
+        profile_picture: DEFAULT_AVATAR_PATH,
         role: 'user',
         email_token: {
           create: { token: token },
