@@ -12,16 +12,19 @@ export default async function handler(req, res) {
 
 // GET /api/images/[...slug]
 async function handleGET(req, res) {
-  // 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
-  // Users image : /user/{id}/avatar/img.png
-  // Product image: /product/{id}/1.png
   const {slug} = req.query;
-  const imgPath = path.join(process.cwd(), '/public/images/', ...slug);
-  const img = fs.readFileSync(imgPath);
+  const imgPath = path.join(process.cwd(), 'public', 'uploads', ...slug);
+  
+  try {
+    const img = fs.readFileSync(imgPath);
+    
+    res.removeHeader('Content-Type');
+    res.setHeader('Content-Type', 'image/png');
 
-  res.removeHeader('Content-Type');
-  res.setHeader('Content-Type', 'image/png');
-
-  // res.status(304).send(img);
-  res.status(200).send(img);
+    res.status(200).send(img);
+    // res.status(304).send(img); //304 cashing
+  } catch (error) {
+    console.log(error);
+    res.status(400).end();
+  }
 }
