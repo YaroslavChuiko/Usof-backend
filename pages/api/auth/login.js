@@ -16,9 +16,12 @@ export default async function handler(req, res) {
 async function login(req, res) {
   const cookies = new Cookies(req, res);
   const { login, password } = req.body;
-  console.log(req.body)
+  
   let user;
-  let result;
+  let result = {
+    success: true,
+    message: '',
+  };
 
   try {
     user = await prisma.user
@@ -34,7 +37,7 @@ async function login(req, res) {
 
   result = checkUser(user, password);
 
-  if (result.type === TYPE_SUCCESS) {
+  if (result.success) {
     const userData = {
       id: user.id,
       login: user.login,

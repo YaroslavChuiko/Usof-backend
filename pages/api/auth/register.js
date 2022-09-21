@@ -16,12 +16,15 @@ export default async function handler(req, res) {
 }
 
 async function handlePOST(res, data) {
-  let result;
+  let result = {
+    success: true,
+    message: '',
+  }
 
   try {
     result = await validate(data);
 
-    if (result.type === TYPE_SUCCESS) {
+    if (result.success) {
       const { login, password, firstName, lastName, email } = data;
       const hash = bcrypt.hashSync(password, SAULT_ROUNDS);
       const token = generateToken();
@@ -51,7 +54,7 @@ async function validate(data) {
   let result = validateData(data);
 
   try {
-    if (result.type === TYPE_SUCCESS) {
+    if (result.success) {
       result = await checkUnique(data);
     }
   } catch (error) {

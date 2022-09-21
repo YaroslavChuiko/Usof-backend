@@ -10,13 +10,13 @@ export function validateData(userData) {
   const passwordErrorMsg = validatePassword(password, repassword);
   const emailErrorMsg = validateEmail(email);
   const result = {
-    type: TYPE_SUCCESS,
+    success: true,
     message: '',
   };
 
   if (loginErrorMsg || firstNameErrorMsg || lastNameErrorMsg || passwordErrorMsg || emailErrorMsg) {
     result.message = loginErrorMsg || firstNameErrorMsg || lastNameErrorMsg || passwordErrorMsg || emailErrorMsg;
-    result.type = TYPE_ERROR;
+    result.success = false;
   }
 
   return result;
@@ -81,7 +81,7 @@ export async function checkUnique(userData) {
   let loginErrorMsg;
   let emailErrorMsg;
   const result = {
-    type: TYPE_SUCCESS,
+    success: true,
     message: 'You are successfully registered!',
   };
   
@@ -94,7 +94,7 @@ export async function checkUnique(userData) {
   
   if (loginErrorMsg || emailErrorMsg) {
     result.message = loginErrorMsg || emailErrorMsg
-    result.type = TYPE_ERROR;
+    result.success = false;
   }
   
   return result;
@@ -139,12 +139,12 @@ async function checkUniqueEmail(email) {
 
 export function checkUser(user, password) {
   let result = {
-    type: TYPE_SUCCESS,
+    success: true,
     message: 'You are successfully logged!',
   };
 
   if (!(user && bcrypt.compareSync(password, user.password))) {
-    result.type = TYPE_ERROR;
+    result.success = false;
     result.message = 'Login or password is invalid';
     return result;
   }

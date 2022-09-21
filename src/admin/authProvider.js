@@ -15,7 +15,7 @@ const authProvider = {
         return response.json();
       })
       .then(data => {
-        if (data.type !== 'success' || data?.user?.role !== 'admin') {
+        if (!data.success || data?.user?.role !== 'admin') {
           throw new Error('Login or password is invalid');
         }
         localStorage.setItem('auth', JSON.stringify(data.user));

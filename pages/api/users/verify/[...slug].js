@@ -17,7 +17,7 @@ async function handlePOST(req, res) {
   const { slug } = req.query;
   const [userId, token] = slug;
   const result = {
-    type: '',
+    success: true,
     message: '',
   };
 
@@ -30,7 +30,7 @@ async function handlePOST(req, res) {
     });
 
     if (!userToken) {
-      result.type = TYPE_ERROR;
+      result.success = false;
       result.message = 'Invalid link, please try again';
       return res.status(200).json(result);
     }
@@ -57,12 +57,12 @@ async function handlePOST(req, res) {
     //   maxAge: TOKEN_EXPIRE_SEC * 1000,
     // });
 
-    result.type = TYPE_ERROR;
+    result.success = true;
     result.message = 'Your email verified sucessfully!';
     res.status(200).json(result);
   } catch (error) {
     console.log(error);
-    result.type = TYPE_ERROR;
+    result.success = false;
     result.message = 'Something goes wrong. Please try again';
     res.status(500).json(result);
   }
