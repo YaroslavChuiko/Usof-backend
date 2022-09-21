@@ -1,10 +1,11 @@
-// import multer from 'multer';
 import formidable from 'formidable';
-import { v4 as uuidv4 } from 'uuid';
 import fs from 'fs';
 import path from 'path';
+import { v4 as uuidv4 } from 'uuid';
+import prisma from '../../../lib/prisma';
+import SimpleCRUD from '../../../logic/SimpleCRUD';
 import { withAuthUser } from '../../../util/auth';
-import { uploadAvatar } from '../../../lib/multer';
+import { DEFAULT_AVATAR_PATH, UPLOADS_PATH } from '../../../util/const';
 
 export const config = {
   api: {
@@ -14,7 +15,11 @@ export const config = {
 
 // /api/users/avatar
 export default async function handler(req, res) {
-  if (req.method === 'POST') { // ! replace  ot PATCH
+  if (req.method === 'PATCH') {
+    const result = withAuthUser(req, res);
+    if (!result.success) return;
+    req.user = result.decoded;
+
     handlePATCH(req, res);
   } else {
     res.status(405).end(`The HTTP ${req.method} method is not supported at this route.`);
@@ -36,17 +41,19 @@ const options = {
   },
 };
 
-const saveAvatar = async file => {
-  // console.log(file);
+const saveAvatar = async (file, userId) => {
+  const avatarPath = path.join('user', `${userId}`, 'avatar');
+  const filePath = path.join(UPLOADS_PATH, avatarPath);
   const data = fs.readFileSync(file.filepath);
-  const filePath = path.join(process.cwd(), 'public', 'uploads', 'user', 'avatar');
+
   if (!fs.existsSync(filePath)) {
     fs.mkdirSync(filePath, { recursive: true });
   }
   // fs.writeFileSync(path.join(filePath, getFileName(file)), data);
   fs.writeFileSync(path.join(filePath, file.newFilename), data);
   fs.unlinkSync(file.filepath);
-  return;
+
+  return path.join(avatarPath, file.newFilename);
 };
 
 // const getFileName = file => {
@@ -56,29 +63,37 @@ const saveAvatar = async file => {
 //   return filename;
 // };
 
+function deleteOldAvatar(avatarPath) {
+  if (avatarPath !== DEFAULT_AVATAR_PATH) {
+    fs.rmSync(path.join(UPLOADS_PATH, avatarPath));
+  }
+}
+
 // PATCH /api/users/avatar
 async function handlePATCH(req, res) {
-  //https://codesandbox.io/s/thyb0?file=/pages/index.js
-  // res.setHeader('Access-Control-Allow-Origin', '*');
-  // res.setHeader('Access-Control-Allow-Credentials', 'true');
-  // res.setHeader('Access-Control-Max-Age', '1800');
-  // res.setHeader('Access-Control-Allow-Headers', 'content-type');
-  // res.setHeader('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, PATCH, OPTIONS');
-
   const form = new formidable.IncomingForm(options);
+
   form.parse(req, async function (err, fields, files) {
     if (err) {
       console.log(err);
       return res.status(415).send(err.message);
     }
-    // console.log(files);
-    try { 
-      await saveAvatar(files.avatar);
 
-      //upadate database
-      // fs.rmSync(filePath); when update user avayar delete old one
-      
-      return res.status(200).send('');
+    try {
+      const userId = req.user.id;
+      const avatarPath = await saveAvatar(files.avatar, userId);
+
+      const user = await SimpleCRUD.getOne(userId, prisma.user); // gen user before updated profile_picture
+
+      const dataToUpdate = {
+        profile_picture: avatarPath,
+      };
+
+      const updatedUser = await SimpleCRUD.update(userId, dataToUpdate, prisma.user);
+
+      deleteOldAvatar(user.profile_picture);
+
+      return res.status(200).json({ success: true });
     } catch (error) {
       console.log(error);
       return res.status(500).send('UnknownError');
