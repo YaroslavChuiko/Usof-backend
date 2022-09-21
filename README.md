@@ -32,3 +32,72 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+
+endpoints
+
+auth
+ 
+✓ POST /api/auth/login can everyone
+✓ POST /api/auth/register can everyone (only user role)
+✓ POST /api/auth/logout can everyone //??
+✓ GET /api/auth/isLoggedIn can everyone 
+✓ POST /api/auth/password-reset auth user can send a password reset link to email
+✓ POST /api/auth/password-reset/[token] auth user can confirm new password
+
+users
+
+✓ GET /api/users/ can everyone
+✓ POST /api/users/ only admin can create
+✓ GET /api/users/[userId] can everyone
+✓ PUT /api/users/[userId] auth user, if not admin can update only himself
+✓ DELETE /api/users/[userId] auth user, if not admin can delete only himself
+✓ PATCH /api/users/avatar auth user can update avatar
+✓ POST /api/users/verify auth user can send a verify link to email
+✓ POST /api/users/verify/[id]/[token] everyone can confirm verify email //! mb chenge auth user
+
+categories
+✘ 
+✓ GET /api/categories/ can everyone
+✓ POST /api/categories/ only admin //?? mb auth user
+✓ GET /api/categories/[categoryId] can everyone
+✘ GET /api/categories/[categoryId]/posts
+✓ PUT /api/categories/[categoryId] only admin
+✓ DELETE /api/categories/[categoryId] only admin
+
+post
+
+✓ GET /api/posts/ can everyone
+✓ POST /api/posts/ auth user
+✓ GET /api/posts/[postid] can everyone
+✓ PUT /api/posts/[postid] auth user
+✓ DELETE /api/posts/[postid] auth user 
+✘ GET /api/posts/[postid]/comments
+✘ POST /api/posts/[postid]/comments 
+✘ GET /api/posts/[postid]/categories
+✘ GET /api/posts/[postid]/like
+✘ POST /api/posts/[postid]/like
+✘ DELETE /api/posts/[postid]/like
+
+comments
+
+✓ GET /api/comments/ only admiin //mb all users if delete route in posts
+✓ POST /api/comments/ only admin //mb all users if delete route in posts
+✓ GET /api/comments/[commentId] can everyone
+✓ PUT /api/comments/[commentId] auth user
+✓ DELETE /api/comments/[commentId] auth user
+✘ GET /api/comments/[commentId]/like
+✘ POST /api/comments/[commentId]/like
+✘ DELETE /api/comments/[commentId]/like
+
+likes
+✘ 
+✓ GET /api/likes/ only admin //mb all users if delete route in posts/comments
+  DELETE /api/likes/[id] auth user // mb delete this endpoint and add new to po/comment
+
+images
+
+✓ GET /api/images/[...slug] can everyone
+
+
+
