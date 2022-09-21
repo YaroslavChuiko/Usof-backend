@@ -2,17 +2,17 @@ USE usof;
 
 INSERT INTO user (login, password, full_name, email, profile_picture, role)
 VALUES
-  ('NewUser122', 'stri1Ang', 'John Doe', 'test1@ex2amp1l2e.com', 'test.png', 'admin'),
-  ('Bret', '1111', 'Leanne Graham', 'Sincere@april.biz', 'test.png', 'user'),
-  ('Antonette', '1111', 'Ervin Howell', 'Shanna@melissa.tv', 'test.png', 'user'),
-  ('Samantha', '1111', 'Clementine Bauch', 'Nathan@yesenia.net', 'test.png', 'user'),
-  ('Karianne', '1111', 'Patricia Lebsack', 'Julianne.OConner@kory.org', 'test.png', 'user'),
-  ('Kamren', '1111', 'Chelsey Dietrich', 'Lucio_Hettinger@annie.ca', 'test.png', 'user'),
-  ('Leopoldo_Corkery', '1111', 'Mrs. Dennis Schulist', 'Karley_Dach@jasper.info', 'test.png', 'user'),
-  ('Elwyn_Skiles', '1111', 'Kurtis Weissnat', 'Telly.Hoeger@billy.biz', 'test.png', 'user'),
-  ('Maxime_Nienow', '1111', 'Nicholas Runolfsdottir V', 'Sherwood@rosamond.me', 'test.png', 'user'),
-  ('Delphine', '1111', 'Glenna Reichert', 'Chaim_McDermott@dana.io', 'test.png', 'user'),
-  ('Moriah_Stanton', '1111', 'Clementina DuBuque', 'Rey.Padberg@karina.biz', 'test.png', 'user');
+  ('NewUser122', 'stri1Ang', 'John Doe', 'test1@ex2amp1l2e.com', 'defaultAvatar/defaultAvatar.jpg', 'admin'),
+  ('Bret', '1111', 'Leanne Graham', 'Sincere@april.biz', 'defaultAvatar/defaultAvatar.jpg', 'user'),
+  ('Antonette', '1111', 'Ervin Howell', 'Shanna@melissa.tv', 'defaultAvatar/defaultAvatar.jpg', 'user'),
+  ('Samantha', '1111', 'Clementine Bauch', 'Nathan@yesenia.net', 'defaultAvatar/defaultAvatar.jpg', 'user'),
+  ('Karianne', '1111', 'Patricia Lebsack', 'Julianne.OConner@kory.org', 'defaultAvatar/defaultAvatar.jpg', 'user'),
+  ('Kamren', '1111', 'Chelsey Dietrich', 'Lucio_Hettinger@annie.ca', 'defaultAvatar/defaultAvatar.jpg', 'user'),
+  ('Leopoldo_Corkery', '1111', 'Mrs. Dennis Schulist', 'Karley_Dach@jasper.info', 'defaultAvatar/defaultAvatar.jpg', 'user'),
+  ('Elwyn_Skiles', '1111', 'Kurtis Weissnat', 'Telly.Hoeger@billy.biz', 'defaultAvatar/defaultAvatar.jpg', 'user'),
+  ('Maxime_Nienow', '1111', 'Nicholas Runolfsdottir V', 'Sherwood@rosamond.me', 'defaultAvatar/defaultAvatar.jpg', 'user'),
+  ('Delphine', '1111', 'Glenna Reichert', 'Chaim_McDermott@dana.io', 'defaultAvatar/defaultAvatar.jpg', 'user'),
+  ('Moriah_Stanton', '1111', 'Clementina DuBuque', 'Rey.Padberg@karina.biz', 'defaultAvatar/defaultAvatar.jpg', 'user');
 
 INSERT INTO post (author_id, title, status, content)
 VALUES
