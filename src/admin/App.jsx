@@ -1,17 +1,17 @@
-import React from 'react';
-import { Admin, Resource, ListGuesser, EditGuesser } from 'react-admin';
 import restProvider from 'ra-data-json-server';
+import { Admin, Resource } from 'react-admin';
+import authProvider from './authProvider';
+import { CategoryCreate, CategoryEdit, CategoryList, CategoryShow } from './categories';
+import { CommentCreate, CommentEdit, CommentList, CommentShow } from './comments';
 import { PostCreate, PostEdit, PostList, PostShow } from './posts';
 import { UserCreate, UserEdit, UserList, UserShow } from './users';
-import { CommentCreate, CommentEdit, CommentList, CommentShow } from './comments';
-import { CategoryCreate, CategoryEdit, CategoryList, CategoryShow } from './categories';
 // import jsonServerProvider from 'ra-data-json-server';
 
 // const dataProvider = jsonServerProvider('https://jsonplaceholder.typicode.com');
 const dataProvider = restProvider('/api'); //???
 
 const App = () => (
-  <Admin title="My Custom Admin" dataProvider={dataProvider}>
+  <Admin title="My Custom Admin" dataProvider={dataProvider} authProvider={authProvider} requireAuth>
     <Resource
       name="users"
       list={UserList}

@@ -3,63 +3,75 @@ import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import { TOKEN_EXPIRE_SEC, TOKEN_SECRET } from './const';
 
+export function generateToken() {
+  return crypto.randomBytes(64).toString('hex');
+}
+
 export function generateAccessToken(payload) {
   return jwt.sign(payload, TOKEN_SECRET, { expiresIn: TOKEN_EXPIRE_SEC });
 }
 
 export function verifyAccessToken(token) {
-  // let decoded;
+  const result = {
+    success: true,
+    message: '',
+    decoded: null,
+  };
 
-  // try {
+  if (!token) {
+    result.success = false;
+    result.message = 'Only for authorized users';
+    return result;
+  }
+
+  try {
     const  decoded = jwt.verify(token, TOKEN_SECRET);
-  // } catch (err) {
-  //   throw new Error('Invalid Token');
-    // return res.status(401).json({ message: 'Invalid Token' });
-  // }
+    result.success = true,
+    result.decoded = decoded;
+  } catch (err) {
+    result.success = false;
+    result.message = 'Invalid Token';
+  }
 
-  return decoded;
-}
-
-export function generateToken() {
-  return crypto.randomBytes(64).toString('hex');
+  return result;
 }
 
 export function withAuthUser(req, res) {
   const cookies = new Cookies(req, res);
   const token = cookies.get('token');
-  let decoded;
-
-  if (!token) {
-    res.status(401).json({ message: 'Only for authorized users' });
+  let result = {
+    success: true,
+    message: '',
+    decoded: null,
   }
 
-  try {
-    decoded = verifyAccessToken(token);
-  } catch (error) {
-    res.status(401).json({ message: 'Invalid Token' }); // ? throw new err with msg and trycatch outside
-  }
+  result = verifyAccessToken(token);
 
-  return decoded;
+  if(result.success) {
+    return result;
+  } 
+
+  res.status(401).json({success: result.success, message: result.message})
+
+  return result;
 }
 
 export function withAuthAdmin(req, res) {
   const cookies = new Cookies(req, res);
   const token = cookies.get('token');
-  let decoded;
-
-  if (!token) {
-    res.status(401).json({ message: 'Only for authorized users' });
+  let result = {
+    success: true,
+    message: '',
+    decoded: null,
   }
 
-  try {
-    decoded = verifyAccessToken(token);
-  } catch (error) {
-    res.status(401).json({ message: 'Invalid Token' });
-  }
+  result = verifyAccessToken(token);
 
-  if (decoded.role !== 'admin') {
-    res.status(403).json({ message: 'Only for admin users' });
-  }
+  if(result.success && result.decoded.role === 'admin') {
+    return result;
+  } 
 
-  return decoded;
+  res.status(403).json({success: result.success, message: 'Only for admin users'})
+
+  return result;
 }
