@@ -7,15 +7,16 @@ import { TOKEN_EXPIRE_SEC, TYPE_SUCCESS } from '../../../util/const';
 // /api/auth/login
 export default async function handler(req, res) {
   if (req.method === 'POST') {
-    login(res, req);
+    login(req, res);
   } else {
     res.status(405).end(`The HTTP ${req.method} method is not supported at this route.`);
   }
 }
 
-async function login(res, req) {
+async function login(req, res) {
   const cookies = new Cookies(req, res);
   const { login, password } = req.body;
+  console.log(req.body)
   let user;
   let result;
 
@@ -26,27 +27,30 @@ async function login(res, req) {
           login: login,
         },
       })
-      .catch(err => console.log(err));
   } catch (error) {
-    res.status(500).json(error.message);
+    console.log(error)
+    return res.status(500).json(error.message);
   }
 
   result = checkUser(user, password);
 
   if (result.type === TYPE_SUCCESS) {
-    const tokenPayload = {
+    const userData = {
       id: user.id,
       login: user.login,
       fullName: user.full_name,
       email: user.email,
       active: user.active,
+      avatar: user.profile_picture,
       role: user.role,
     };
-    const token = generateAccessToken(tokenPayload);
+    result.user = userData;
+    const token = generateAccessToken(userData);
 
     cookies.set('token', token, {
       sameSite: 'lax',
       maxAge: TOKEN_EXPIRE_SEC * 1000,
+      httpOnly: true,
     });
   }
 
