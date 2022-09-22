@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt';
 import prisma from '../../../lib/prisma';
 import SimpleCRUD from '../../../logic/SimpleCRUD';
 import { withAuthUser } from '../../../util/auth';
+import { SAULT_ROUNDS } from '../../../util/const';
 
 // /api/users/[userId]
 export default async function handler(req, res) {

@@ -1,8 +1,8 @@
 import Cookies from 'cookies';
 import prisma from '../../../lib/prisma';
-import { checkUser } from '../../../util/validation';
 import { generateAccessToken } from '../../../util/auth';
-import { TOKEN_EXPIRE_SEC, TYPE_SUCCESS } from '../../../util/const';
+import { TOKEN_EXPIRE_SEC } from '../../../util/const';
+import { checkUser } from '../../../util/validation';
 
 // /api/auth/login
 export default async function handler(req, res) {

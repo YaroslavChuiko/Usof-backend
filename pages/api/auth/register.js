@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 import prisma from '../../../lib/prisma';
 import SimpleCRUD from '../../../logic/SimpleCRUD';
 import { generateToken } from '../../../util/auth';
-import { DEFAULT_AVATAR_PATH, SAULT_ROUNDS, TYPE_SUCCESS } from '../../../util/const';
+import { DEFAULT_AVATAR_PATH, SAULT_ROUNDS } from '../../../util/const';
 import { sendEmailVerify } from '../../../util/sendEmail';
 import { checkUnique, validateData } from '../../../util/validation';
 

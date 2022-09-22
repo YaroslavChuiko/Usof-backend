@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import prisma from '../../../../lib/prisma';
 import { withAuthUser } from '../../../../util/auth';
-import { SAULT_ROUNDS, TYPE_ERROR, TYPE_SUCCESS } from '../../../../util/const';
+import { SAULT_ROUNDS } from '../../../../util/const';
 
 // /api/auth/password-reset/[confirmToken]
 export default async function handler(req, res) {

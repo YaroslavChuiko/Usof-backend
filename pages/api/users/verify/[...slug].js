@@ -1,5 +1,4 @@
 import prisma from '../../../../lib/prisma';
-import { TYPE_ERROR } from '../../../../util/const';
 
 // /api/users/verify/[userId]/[token] - verify user email with token
 export default async function handler(req, res) {

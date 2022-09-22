@@ -1,6 +1,5 @@
-import prisma from "../lib/prisma";
 import bcrypt from 'bcrypt';
-import { TYPE_ERROR, TYPE_SUCCESS } from "./const";
+import prisma from "../lib/prisma";
 
 export function validateData(userData) {
   const { login, password, repassword, firstName, lastName, email } = userData;

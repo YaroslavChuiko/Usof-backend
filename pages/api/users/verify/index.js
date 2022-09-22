@@ -1,6 +1,5 @@
 import prisma from '../../../../lib/prisma';
 import { generateToken, withAuthUser } from '../../../../util/auth';
-import { TYPE_ERROR, TYPE_SUCCESS } from '../../../../util/const';
 import { sendEmailVerify } from '../../../../util/sendEmail';
 
 // /api/users/verify - send a verify link to user email

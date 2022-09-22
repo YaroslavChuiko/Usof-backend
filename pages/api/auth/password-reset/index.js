@@ -1,6 +1,5 @@
 import prisma from '../../../../lib/prisma';
 import { generateToken, withAuthUser } from '../../../../util/auth';
-import { TYPE_ERROR, TYPE_SUCCESS } from '../../../../util/const';
 import { sendEmailPasswordReset } from '../../../../util/sendEmail';
 
 // /api/auth/password-reset - send a password reset link to user email
