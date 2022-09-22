@@ -71,19 +71,6 @@ async function handlePATCH(req, res) {
       return res.status(500).send('UnknownError');
     }
   });
-
-  // 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
-  // Users image : /user/{id}/avatar/img.png
-  // Product image: /product/{id}/1.png
-
-  // uploadAvatar(req, res, err => {
-  //   if (err) {
-  //     console.log(err);
-  //     res.status(500).send('UnknownError');
-  //     // An unknown error occurred when uploading.
-  //   }
-  //   // Everything went fine.
-  // });
 }
 
 const saveAvatar = async (file, userId) => {
@@ -100,13 +87,6 @@ const saveAvatar = async (file, userId) => {
 
   return path.join(avatarPath, file.newFilename);
 };
-
-// const getFileName = file => {
-//   let filename = uuidv4() + '-' + new Date().getTime();
-//   filename += '.' + file.originalFilename.substring(file.originalFilename.lastIndexOf('.') + 1, file.originalFilename.length);
-
-//   return filename;
-// };
 
 function deleteOldAvatar(avatarPath) {
   if (avatarPath !== DEFAULT_AVATAR_PATH) {
