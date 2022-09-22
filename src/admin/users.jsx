@@ -47,6 +47,7 @@ export const UserList = props => (
       <TextField source="full_name" />
       <EmailField source="email" />
       <TextField source="role" />
+      <NumberField source="rating" />
       <EditButton />
     </Datagrid>
   </List>
@@ -64,7 +65,8 @@ export const UserEdit = () => (
       <TextInput source="login" validate={required()} />
       <TextInput source="full_name" validate={required()} />
       <SelectInput source="role" optionValue="role" optionText="label" choices={roles} validate={required()} />
-      <TextInput source="email" validate={required()} />
+      <TextInput disabled source="email" validate={required()} />
+      <TextInput source="profile_picture" validate={required()} />
       <NumberInput disabled source="rating" />
     </SimpleForm>
   </Edit>
@@ -76,11 +78,11 @@ export const UserCreate = () => (
       <TextInput source="login" validate={required()} />
       <TextInput source="full_name" validate={required()} />
       <PasswordInput source="password" validate={required()} />
+      <TextInput source="email" validate={required()} />
       <TextInput source="profile_picture" validate={required()} />
       {/* <ImageInput source="pictures" label="Related pictures" accept="image/*">
         <ImageField source="src" title="title" />
       </ImageInput> */}
-      <TextInput source="email" validate={required()} />
       <SelectInput source="role" optionValue="role" optionText="label" choices={roles} validate={required()} />
     </SimpleForm>
   </Create>
