@@ -2,17 +2,18 @@ USE usof;
 
 INSERT INTO user (login, password, full_name, email, profile_picture, role)
 VALUES
-  ('NewUser122', 'stri1Ang', 'John Doe', 'test1@ex2amp1l2e.com', 'defaultAvatar/defaultAvatar.jpg', 'admin'),
-  ('Bret', '1111', 'Leanne Graham', 'Sincere@april.biz', 'defaultAvatar/defaultAvatar.jpg', 'user'),
-  ('Antonette', '1111', 'Ervin Howell', 'Shanna@melissa.tv', 'defaultAvatar/defaultAvatar.jpg', 'user'),
-  ('Samantha', '1111', 'Clementine Bauch', 'Nathan@yesenia.net', 'defaultAvatar/defaultAvatar.jpg', 'user'),
-  ('Karianne', '1111', 'Patricia Lebsack', 'Julianne.OConner@kory.org', 'defaultAvatar/defaultAvatar.jpg', 'user'),
-  ('Kamren', '1111', 'Chelsey Dietrich', 'Lucio_Hettinger@annie.ca', 'defaultAvatar/defaultAvatar.jpg', 'user'),
-  ('Leopoldo_Corkery', '1111', 'Mrs. Dennis Schulist', 'Karley_Dach@jasper.info', 'defaultAvatar/defaultAvatar.jpg', 'user'),
-  ('Elwyn_Skiles', '1111', 'Kurtis Weissnat', 'Telly.Hoeger@billy.biz', 'defaultAvatar/defaultAvatar.jpg', 'user'),
-  ('Maxime_Nienow', '1111', 'Nicholas Runolfsdottir V', 'Sherwood@rosamond.me', 'defaultAvatar/defaultAvatar.jpg', 'user'),
-  ('Delphine', '1111', 'Glenna Reichert', 'Chaim_McDermott@dana.io', 'defaultAvatar/defaultAvatar.jpg', 'user'),
-  ('Moriah_Stanton', '1111', 'Clementina DuBuque', 'Rey.Padberg@karina.biz', 'defaultAvatar/defaultAvatar.jpg', 'user');
+  ('admin', '$2b$10$28PmEKl8By4FtdGKW2RGpOHXdIeMkKtLwQfpybOp5mXs4GG6kPhxu', 'admin admin', 'admin.gmail.com', 'defaultAvatar/defaultAvatar.jpg', 'admin'),
+  ('NewUser122', '$2b$10$fbl47MaZtxxK1jvqVHTBqea1cm.XS.i56OFF0sF3nqN17C6.kD8FK', 'John Doe', 'test1@ex2amp1l2e.com', 'defaultAvatar/defaultAvatar.jpg', 'admin'),
+  ('Bret', '$2b$10$fbl47MaZtxxK1jvqVHTBqea1cm.XS.i56OFF0sF3nqN17C6.kD8FK', 'Leanne Graham', 'Sincere@april.biz', 'defaultAvatar/defaultAvatar.jpg', 'user'),
+  ('Antonette', '$2b$10$fbl47MaZtxxK1jvqVHTBqea1cm.XS.i56OFF0sF3nqN17C6.kD8FK', 'Ervin Howell', 'Shanna@melissa.tv', 'defaultAvatar/defaultAvatar.jpg', 'user'),
+  ('Samantha', '$2b$10$fbl47MaZtxxK1jvqVHTBqea1cm.XS.i56OFF0sF3nqN17C6.kD8FK', 'Clementine Bauch', 'Nathan@yesenia.net', 'defaultAvatar/defaultAvatar.jpg', 'user'),
+  ('Karianne', '$2b$10$fbl47MaZtxxK1jvqVHTBqea1cm.XS.i56OFF0sF3nqN17C6.kD8FK', 'Patricia Lebsack', 'Julianne.OConner@kory.org', 'defaultAvatar/defaultAvatar.jpg', 'user'),
+  ('Kamren', '$2b$10$fbl47MaZtxxK1jvqVHTBqea1cm.XS.i56OFF0sF3nqN17C6.kD8FK', 'Chelsey Dietrich', 'Lucio_Hettinger@annie.ca', 'defaultAvatar/defaultAvatar.jpg', 'user'),
+  ('Leopoldo_Corkery', '$2b$10$fbl47MaZtxxK1jvqVHTBqea1cm.XS.i56OFF0sF3nqN17C6.kD8FK', 'Mrs. Dennis Schulist', 'Karley_Dach@jasper.info', 'defaultAvatar/defaultAvatar.jpg', 'user'),
+  ('Elwyn_Skiles', '$2b$10$fbl47MaZtxxK1jvqVHTBqea1cm.XS.i56OFF0sF3nqN17C6.kD8FK', 'Kurtis Weissnat', 'Telly.Hoeger@billy.biz', 'defaultAvatar/defaultAvatar.jpg', 'user'),
+  ('Maxime_Nienow', '$2b$10$fbl47MaZtxxK1jvqVHTBqea1cm.XS.i56OFF0sF3nqN17C6.kD8FK', 'Nicholas Runolfsdottir V', 'Sherwood@rosamond.me', 'defaultAvatar/defaultAvatar.jpg', 'user'),
+  ('Delphine', '$2b$10$fbl47MaZtxxK1jvqVHTBqea1cm.XS.i56OFF0sF3nqN17C6.kD8FK', 'Glenna Reichert', 'Chaim_McDermott@dana.io', 'defaultAvatar/defaultAvatar.jpg', 'user'),
+  ('Moriah_Stanton', '$2b$10$fbl47MaZtxxK1jvqVHTBqea1cm.XS.i56OFF0sF3nqN17C6.kD8FK', 'Clementina DuBuque', 'Rey.Padberg@karina.biz', 'defaultAvatar/defaultAvatar.jpg', 'user');
 
 INSERT INTO post (author_id, title, status, content)
 VALUES
