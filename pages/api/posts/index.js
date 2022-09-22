@@ -21,7 +21,6 @@ function getOptions(queryParams) {
   const options = {};
   options.include = { post_categories: { include: { category: true } } };
   const { _start, _end, _sort, _order, id, author_id, status, q, post_categories } = queryParams;
-  console.log('queryParams Post', queryParams);
 
   if (_start && _end) {
     options.skip = Number(_start);
@@ -34,13 +33,10 @@ function getOptions(queryParams) {
   }
   if (id) {
     let idNum = Array.isArray(id) ? id.map(item => Number(item)) : [Number(id)];
-    console.log('idNum Post', idNum);
-
     options.where = {
       id: { in: idNum }, //??
     };
   } else if (author_id) {
-    console.log('filterPOst author_id', author_id);
     // getManyReference
     options.where = {
       author_id: {

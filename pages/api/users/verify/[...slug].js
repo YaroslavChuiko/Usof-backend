@@ -46,8 +46,6 @@ async function handlePOST(req, res) {
       },
     });
 
-    console.log(updatedUser);
-
     // ! after activate email update jwt token payload active to true
     // const token = generateAccessToken(tokenPayload);
 

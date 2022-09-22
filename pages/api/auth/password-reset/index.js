@@ -18,7 +18,7 @@ export default async function handler(req, res) {
 //POST /api/users/verify
 async function handlePOST(req, res) {
   const userData = req.user;
-  console.log(userData);
+  
   const result = {
     success: true,
     message: '',

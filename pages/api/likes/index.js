@@ -26,7 +26,7 @@ export default async function handler(req, res) {
 function getOptions(queryParams) {
   const options = {};
   const { _start, _end, _sort, _order, id, author_id, target_post, target_comment, type } = queryParams;
-  console.log('queryParams like', queryParams);
+
   if (_start && _end) {
     options.skip = Number(_start);
     options.take = _end - _start;
@@ -37,15 +37,11 @@ function getOptions(queryParams) {
     };
   }
   if (id) {
-    // console.log(id);
     let idNum = Array.isArray(id) ? id.map(item => Number(item)) : [Number(id)];
-    console.log('idNum like', idNum);
-
     options.where = {
       id: { in: idNum }, //??
     };
   } else if (author_id) {
-    console.log('filterlike author_id', author_id);
     // getManyReference
     options.where = {
       author_id: {
@@ -53,7 +49,6 @@ function getOptions(queryParams) {
       },
     };
   } else if (target_post) {
-    console.log('filterlike target_post', target_post);
     // getManyReference
     options.where = {
       target_post: {
@@ -61,7 +56,6 @@ function getOptions(queryParams) {
       },
     };
   } else if (target_comment) {
-    console.log('filterlike target_comment', target_comment);
     // getManyReference
     options.where = {
       target_comment: {

@@ -8,7 +8,6 @@ export default async function handler(req, res) {
   if (req.method === 'GET') {
     handleGET(res, commentId);
   } else if (req.method === 'PUT') {
-    console.log('PUT', req.body);
     const result = withAuthUser(req, res);
     if (!result.success) return;
     req.user = result.decoded;

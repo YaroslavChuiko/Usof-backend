@@ -54,8 +54,6 @@ async function handlePOST(req, res) {
       },
     });
 
-    console.log(updatedUser);
-
     result.success = true;
     result.message = 'Your password has been updated successfully!';
     res.status(200).json(result);

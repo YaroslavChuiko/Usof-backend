@@ -36,7 +36,6 @@ async function handleGET(postId, res) {
       include: { post_categories: { include: { category: true } } },
     });
     post = { ...post, post_categories: post.post_categories.map(category => category.category.id) };
-    console.log('get post ', post);
 
     res.status(200).json(post);
   } catch (error) {
@@ -74,7 +73,7 @@ async function handlePUT(req, res, postId) {
       },
       include: { post_categories: true },
     });
-    console.log('Put post', post);
+
     res.status(200).json(post);
   } catch (error) {
     console.error(error);
