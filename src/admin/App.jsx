@@ -5,10 +5,8 @@ import { CategoryCreate, CategoryEdit, CategoryList, CategoryShow } from './cate
 import { CommentCreate, CommentEdit, CommentList, CommentShow } from './comments';
 import { PostCreate, PostEdit, PostList, PostShow } from './posts';
 import { UserCreate, UserEdit, UserList, UserShow } from './users';
-// import jsonServerProvider from 'ra-data-json-server';
 
-// const dataProvider = jsonServerProvider('https://jsonplaceholder.typicode.com');
-const dataProvider = restProvider('/api'); //???
+const dataProvider = restProvider('/api');
 
 const App = () => (
   <Admin title="My Custom Admin" dataProvider={dataProvider} authProvider={authProvider} requireAuth>
