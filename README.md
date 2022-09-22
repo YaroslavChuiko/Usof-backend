@@ -61,39 +61,40 @@ categories
 ✓ GET /api/categories/ can everyone
 ✓ POST /api/categories/ only admin //?? mb auth user
 ✓ GET /api/categories/[categoryId] can everyone
-✘ GET /api/categories/[categoryId]/posts
+✘ GET /api/categories/[categoryId]/posts || /api/posts?post_categories=categoryId  
 ✓ PUT /api/categories/[categoryId] only admin
 ✓ DELETE /api/categories/[categoryId] only admin
 
 post
 
-✓ GET /api/posts/ can everyone
+✓ GET /api/posts/ can everyone (categories ids included)
 ✓ POST /api/posts/ auth user
 ✓ GET /api/posts/[postid] can everyone
 ✓ PUT /api/posts/[postid] auth user
 ✓ DELETE /api/posts/[postid] auth user 
-✘ GET /api/posts/[postid]/comments
-✘ POST /api/posts/[postid]/comments 
-✘ GET /api/posts/[postid]/categories
-✘ GET /api/posts/[postid]/like
-✘ POST /api/posts/[postid]/like
-✘ DELETE /api/posts/[postid]/like
+✘ GET /api/posts/[postid]/comments || ✓ GET /api/comments?post_id=id
+✘ POST /api/posts/[postid]/comments || ✓ POST /api/comments (postid inside req.body)
+✘ GET /api/posts/[postid]/categories || ✓ GET /api/categories?id=1&id=2... (categoryId included in get /api/posts/)
+✘ GET /api/posts/[postid]/like || ✓ GET /api/likes?target_post=postId
+✘ POST /api/posts/[postid]/like || ✓ POST /api/likes (required in req.body author_id, target_post, target_comment)
+✘ DELETE /api/posts/[postid]/like || ✓ DELETE /api/likes (required in req.body author_id, target_post, target_comment)
 
 comments
 
-✓ GET /api/comments/ only admiin //mb all users if delete route in posts
-✓ POST /api/comments/ only admin //mb all users if delete route in posts
+✓ GET /api/comments/ can everyone
+✓ POST /api/comments/ can everyone
 ✓ GET /api/comments/[commentId] can everyone
 ✓ PUT /api/comments/[commentId] auth user
 ✓ DELETE /api/comments/[commentId] auth user
-✘ GET /api/comments/[commentId]/like
-✘ POST /api/comments/[commentId]/like
-✘ DELETE /api/comments/[commentId]/like
+✘ GET /api/comments/[commentId]/like || ✓ GET /api/likes?target_comment=commentId
+✘ POST /api/comments/[commentId]/like || ✓ POST /api/likes (required in req.body author_id, target_post, target_comment)
+✘ DELETE /api/comments/[commentId]/like || ✓ DELETE /api/likes (required in req.body author_id, target_post, target_comment)
 
 likes
-✘ 
-✓ GET /api/likes/ only admin //mb all users if delete route in posts/comments
-  DELETE /api/likes/[id] auth user // mb delete this endpoint and add new to po/comment
+
+✓ GET /api/likes/ can everyone
+✓ POST /api/likes/ auth user
+✓ DELETE /api/likes/ auth user
 
 images
 
