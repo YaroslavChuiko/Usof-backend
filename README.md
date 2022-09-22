@@ -4,7 +4,7 @@
 
 ##### Create mysql database
 
-Run `create.sql` and `data.sql` files with mysql server to create and fill database 
+Open directory `database` and run `create.sql` and `data.sql` files with mysql server to create and fill the database 
 
 ##### Install dependencies
 
@@ -12,7 +12,7 @@ Run `create.sql` and `data.sql` files with mysql server to create and fill datab
 
 ##### Connect to database
 
-Open file `.env` and edit `DATABASE_URL` it should look like this example `mysql://USER:PASSWORD@HOST:PORT/DATABASE`
+Open file `.env` and edit `DATABASE_URL` it should looks like this example `mysql://USER:PASSWORD@HOST:PORT/DATABASE`
 
 ##### Introspect your database
 
@@ -32,7 +32,7 @@ Run `npm run build` to build the application for production usage
 
 Run `npm run start` to start a Next.js production server
 
-##### Login
+##### Admin panel login
 
 Follow the default link http://localhost:3000 and enter username: `admin`, password: `admin`
 
