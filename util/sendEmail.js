@@ -35,7 +35,7 @@ export async function sendEmail(email, subject, text = '', html = '') {
 export async function sendEmailVerify(userId, token, email) {
   //? mb get userId from jwt token instead url
   // ! mb change link to front-end that query to ${process.env.BASE_URL}/api/users/verify/${userId}/${token} and show result
-  const html = `Press <a href=${process.env.BASE_URL}/api/users/verify/${userId}/${token}> here </a> to verify your email. Thanks`;
+  const html = `<p>You must follow this link within 30 days to verify your email</p>Press <a href=${process.env.BASE_URL}/api/users/verify/${userId}/${token}> here </a> to verify your email. Thanks`;
   await sendEmail(email, 'Verify Email', '', html);
 }
 
