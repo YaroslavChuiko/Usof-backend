@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import prisma from '../../../lib/prisma';
 import SimpleCRUD from '../../../logic/SimpleCRUD';
-import { generateToken } from '../../../util/auth';
+import { generateUniqueToken } from '../../../util/auth';
 import { DEFAULT_AVATAR_PATH, SAULT_ROUNDS } from '../../../util/const';
 import { sendEmailVerify } from '../../../util/sendEmail';
 import { checkUnique, validateData } from '../../../util/validation';
@@ -27,7 +27,7 @@ async function handlePOST(res, data) {
     if (result.success) {
       const { login, password, firstName, lastName, email } = data;
       const hash = bcrypt.hashSync(password, SAULT_ROUNDS);
-      const token = generateToken();
+      const token = generateUniqueToken();
       const newUserData = {
         login,
         password: hash,

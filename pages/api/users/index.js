@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import prisma from '../../../lib/prisma';
 import SimpleCRUD from '../../../logic/SimpleCRUD';
-import { generateToken, withAuthAdmin } from '../../../util/auth';
+import { generateUniqueToken, withAuthAdmin } from '../../../util/auth';
 import { SAULT_ROUNDS } from '../../../util/const';
 import { sendEmailVerify } from '../../../util/sendEmail';
 
@@ -87,7 +87,7 @@ async function handlePOST(data, res) {
   //?? add repassword (pdf)
   const { login, password, full_name, email, profile_picture, role } = data;
   const hash = bcrypt.hashSync(password, SAULT_ROUNDS);
-  const token = generateToken();
+  const token = generateUniqueToken();
   const newUserData = {
     login,
     password: hash,

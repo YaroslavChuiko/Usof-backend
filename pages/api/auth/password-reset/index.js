@@ -1,5 +1,5 @@
 import prisma from '../../../../lib/prisma';
-import { generateToken, withAuthUser } from '../../../../util/auth';
+import { generateUniqueToken, withAuthUser } from '../../../../util/auth';
 import { sendEmailPasswordReset } from '../../../../util/sendEmail';
 
 // /api/auth/password-reset - send a password reset link to user email
@@ -37,7 +37,7 @@ async function handlePOST(req, res) {
       return res.status(200).json(result);
     }
 
-    const token = generateToken();
+    const token = generateUniqueToken();
     const updatedUser = await prisma.user.update({
       where: {
         id: Number(userData.id),
