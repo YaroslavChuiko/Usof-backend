@@ -91,16 +91,15 @@ model user {
 }
 
 model email_token {
-  id      Int    @id @default(autoincrement())
-  user_id Int    @unique(map: "user_id")
-  token   String @unique(map: "token") @db.Char(128)
-  user    user   @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "email_token_ibfk_1")
+  user_id    Int      @id @unique(map: "user_id")
+  token      String   @unique(map: "token") @db.Char(36)
+  created_at DateTime @default(now()) @db.Timestamp(0)
+  user       user     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "email_token_ibfk_1")
 }
 
 model password_token {
-  id         Int      @id @default(autoincrement())
-  user_id    Int      @unique(map: "user_id")
-  token      String   @unique(map: "token") @db.Char(128)
+  user_id    Int      @id
+  token      String   @unique(map: "token") @db.Char(36)
   created_at DateTime @default(now()) @db.Timestamp(0)
   user       user     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "password_token_ibfk_1")
 }
