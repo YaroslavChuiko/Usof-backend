@@ -1,10 +1,10 @@
 import Cookies from 'cookies';
-import crypto from 'crypto';
+import { v4 as uuidv4 } from 'uuid';
 import jwt from 'jsonwebtoken';
 import { TOKEN_EXPIRE_SEC, TOKEN_SECRET } from './const';
 
-export function generateToken() {
-  return crypto.randomBytes(64).toString('hex');
+export function generateUniqueToken() {
+  return uuidv4();
 }
 
 export function generateAccessToken(payload) {
