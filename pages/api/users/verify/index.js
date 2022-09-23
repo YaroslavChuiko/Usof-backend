@@ -1,5 +1,5 @@
 import prisma from '../../../../lib/prisma';
-import { generateToken, withAuthUser } from '../../../../util/auth';
+import { generateUniqueToken, withAuthUser } from '../../../../util/auth';
 import { sendEmailVerify } from '../../../../util/sendEmail';
 
 // /api/users/verify - send a verify link to user email
@@ -44,7 +44,10 @@ async function handlePOST(req, res) {
       return res.status(200).json(result);
     }
 
-    const token = generateToken();
+    const token = generateUniqueToken();
+
+    await sendEmailVerify(userData.id, token, userData.email);
+
     const updatedUser = await prisma.user.update({
       where: {
         id: Number(userData.id),
@@ -58,8 +61,6 @@ async function handlePOST(req, res) {
         },
       },
     });
-
-    await sendEmailVerify(userData.id, token, userData.email);
 
     result.success = true;
     result.message = 'Verification link sent to your email';
