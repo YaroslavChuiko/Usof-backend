@@ -38,7 +38,7 @@ async function login({ username, password }) {
 async function checkError(error) {
   const status = error.status;
   if (status === 401 || status === 403) {
-    return Promise.reject({ redirectTo: '/unauthorized', logoutUser: true });
+    return Promise.reject({ logoutUser: true });
   }
 
   return Promise.resolve();
