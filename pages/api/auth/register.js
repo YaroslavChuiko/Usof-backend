@@ -9,13 +9,14 @@ import { checkUnique, validateData } from '../../../util/validation';
 // /api/auth/register
 export default async function handler(req, res) {
   if (req.method === 'POST') {
-    handlePOST(res, req.body);
+    handlePOST(req, res);
   } else {
     res.status(405).end(`The HTTP ${req.method} method is not supported at this route.`);
   }
 }
 
-async function handlePOST(res, data) {
+async function handlePOST(req, res) {
+  const data = req.body;
   let result = {
     success: true,
     message: '',
