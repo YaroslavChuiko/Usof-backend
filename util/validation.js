@@ -4,47 +4,65 @@ import prisma from '../lib/prisma';
 export function validateData(userData) {
   const { login, password, repassword, firstName, lastName, email } = userData;
   const loginErrorMsg = validateLogin(login);
-  const firstNameErrorMsg = validateName(firstName, 'first name');
-  const lastNameErrorMsg = validateName(lastName, 'last name');
-  const passwordErrorMsg = validatePassword(password, repassword);
+  const firstNameErrorMsg = validateName(firstName);
+  const lastNameErrorMsg = validateName(lastName);
   const emailErrorMsg = validateEmail(email);
+  const passwordErrorMsg = validatePassword(password);
+  const repasswordErrorMsg = comparePasswords(password, repassword);
   const result = {
     success: true,
-    message: '',
+    message: 'You are successfully registered',
+    errors: {}
   };
 
-  if (loginErrorMsg || firstNameErrorMsg || lastNameErrorMsg || passwordErrorMsg || emailErrorMsg) {
-    result.message = loginErrorMsg || firstNameErrorMsg || lastNameErrorMsg || passwordErrorMsg || emailErrorMsg;
+  if (loginErrorMsg || firstNameErrorMsg || lastNameErrorMsg || emailErrorMsg || passwordErrorMsg || repasswordErrorMsg) {
+    result.message = 'Register error';
     result.success = false;
+    result.errors.login = loginErrorMsg ? loginErrorMsg : null;
+    result.errors.firstName = firstNameErrorMsg ? firstNameErrorMsg : null;
+    result.errors.lastName = lastNameErrorMsg ? lastNameErrorMsg : null;
+    result.errors.email = emailErrorMsg ? emailErrorMsg : null;
+    result.errors.password = passwordErrorMsg ? passwordErrorMsg : null;
   }
 
   return result;
 }
 
 function validateLogin(login) {
-  if (login.length < 4) return 'The login length must be at least 4 symbols';
-  if (!/^[a-zA-Z]/.test(login)) return 'The login must starts with a letter';
-  if (!/^[a-zA-Z0-9]+$/.test(login)) return 'The login must containt only a-z, A-Z, 0-9';
-  if (login.length > 16) return 'The login length must not exceed 16 symbols';
+  const MIN_LENGTH = 4;
+  const MAX_LENGTH = 16;
+  if (login.length < MIN_LENGTH) return `Length must be at least ${MIN_LENGTH} symbols`;
+  if (!/^[a-zA-Z]/.test(login)) return 'Must start with a letter';
+  if (!/^[a-zA-Z0-9]+$/.test(login)) return 'Must containt only a-z, A-Z, 0-9';
+  if (login.length > MAX_LENGTH) return `Length must not exceed ${MAX_LENGTH} symbols`;
 
   return '';
 }
 
-function validateName(name, nameTitle = 'first name') {
-  if (name.length < 2) return `The ${nameTitle} length must be at least 4 symbols`;
-  if (!/^[a-zA-Z]+$/.test(name)) return `The ${nameTitle} must containt only a-z, A-Z`;
-  if (name.length > 16) return `The ${nameTitle} length must not exceed 16 symbols`;
+function validateName(name) {
+  const MIN_LENGTH = 2;
+  const MAX_LENGTH = 16;
+  if (name.length < MIN_LENGTH) return `Length must be at least ${MIN_LENGTH} symbols`;
+  if (!/^[a-zA-Z]+$/.test(name)) return `Must containt only a-z, A-Z`;
+  if (name.length > MAX_LENGTH) return `Length must not exceed ${MAX_LENGTH} symbols`;
 
   return '';
 }
 
-function validatePassword(password, repassword) {
-  if (password.length < 4) return 'The password length must be at least 4 symbols';
-  if (!/^[a-zA-Z0-9]+$/.test(password)) return 'The password must containt only a-z, A-Z, 0-9';
-  if (!/(?=.*\d)/.test(password)) return 'The password should contain at least one digit';
-  if (!/(?=.*[a-z])/.test(password)) return 'The password should contain at least one lower case';
-  if (!/(?=.*[A-Z])/.test(password)) return 'The password should contain at least one upper case';
-  if (password.length > 16) return 'The password length must not exceed 16 symbols';
+function validatePassword(password) {
+  const MIN_LENGTH = 4;
+  const MAX_LENGTH = 16;
+  if (password.length < MIN_LENGTH) return `Length must be at least ${MIN_LENGTH} symbols`;
+  if (!/^[a-zA-Z0-9]+$/.test(password)) return 'Must containt only a-z, A-Z, 0-9';
+  if (!/(?=.*\d)/.test(password)) return 'Should contain at least one digit';
+  if (!/(?=.*[a-z])/.test(password)) return 'Should contain at least one lower case letter';
+  if (!/(?=.*[A-Z])/.test(password)) return 'Should contain at least one upper case letter';
+  if (password.length > MAX_LENGTH) return `Length must not exceed ${MAX_LENGTH} symbols`;
+
+  return '';
+}
+
+function comparePasswords(password, repassword) {
   if (password !== repassword) return 'Passwords do not match';
 
   return '';
@@ -63,7 +81,8 @@ export async function checkUnique(userData) {
   let emailErrorMsg;
   const result = {
     success: true,
-    message: 'You are successfully registered!',
+    message: 'You are successfully registered',
+    errors: {}
   };
 
   try {
@@ -74,8 +93,10 @@ export async function checkUnique(userData) {
   }
 
   if (loginErrorMsg || emailErrorMsg) {
-    result.message = loginErrorMsg || emailErrorMsg;
+    result.message = 'Register error';
     result.success = false;
+    result.errors.login = loginErrorMsg ? loginErrorMsg : null;
+    result.errors.email = emailErrorMsg ? emailErrorMsg : null;
   }
 
   return result;
@@ -94,7 +115,7 @@ async function checkUniqueLogin(login) {
     throw new Error(`Database error`);
   }
 
-  if (result) return 'The user with this login already exists';
+  if (result) return 'A user with this login already exists';
 
   return '';
 }
@@ -112,7 +133,7 @@ async function checkUniqueEmail(email) {
     throw new Error(`Database error`);
   }
 
-  if (result) return 'The user with this email already exists';
+  if (result) return 'A user with this email already exists';
 
   return '';
 }
