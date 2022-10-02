@@ -10,8 +10,21 @@ export default async function handler(req, res) {
 }
 
 async function handleGET(req, res) {
+  let userData = null;
   const { token } = req.cookies;
-  const result = verifyAccessToken(token);
+  const { success, decoded } = verifyAccessToken(token);
 
-  return res.status(200).json({ success: result.success, user: result.decoded });
+  if (success) {
+    userData = {
+      id: decoded.id,
+      login: decoded.login,
+      fullName: decoded.fullName,
+      email: decoded.email,
+      active: decoded.active,
+      avatar: decoded.avatar,
+      role: decoded.role,
+    };
+  }
+
+  return res.status(200).json({ success: success, user: userData });
 }
