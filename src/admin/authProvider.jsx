@@ -56,7 +56,7 @@ async function checkAuth() {
       return response.json();
     })
     .then(data => {
-      if (!data.success) {
+      if (!data.success || data?.user?.role !== 'admin') {
         throw new Error('Only for authorized users');
       }
       return data.success ? Promise.resolve() : Promise.reject({ redirectTo: '/no-access' });
