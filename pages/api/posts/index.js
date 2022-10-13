@@ -20,6 +20,7 @@ export default async function handler(req, res) {
 function getOptions(queryParams) {
   const options = {};
   options.include = { post_categories: { include: { category: true } } };
+  options.where = { AND: [] };
   const { _start, _end, _sort, _order, id, author_id, status, q, post_categories } = queryParams;
 
   if (_start && _end) {
@@ -32,42 +33,38 @@ function getOptions(queryParams) {
     };
   }
   if (id) {
-    let idNum = Array.isArray(id) ? id.map(item => Number(item)) : [Number(id)];
-    options.where = {
-      id: { in: idNum }, //??
-    };
-  } else if (author_id) {
-    // getManyReference
-    options.where = {
+    let idNum = Array.isArray(id) ? id.map((item) => Number(item)) : [Number(id)];
+    options.where.AND.push({
+      id: { in: idNum },
+    });
+  }
+  if (author_id) {
+    options.where.AND.push({
       author_id: {
         equals: Number(author_id),
       },
-    };
-  } else if (status) {
-    options.where = {
+    });
+  }
+  if (status) {
+    options.where.AND.push({
       status: {
         equals: status,
       },
-    };
-  } else if (post_categories) {
-    options.where = {
+    });
+  }
+  if (post_categories) {
+    options.where.AND.push({
       post_categories: {
         some: {
           category_id: Number(post_categories),
         },
       },
-    };
-  } else if (q) {
-    options.where = {
-      OR: [
-        {
-          title: { contains: q },
-        },
-        // {
-        //   status: { equals: q},
-        // },
-      ],
-    };
+    });
+  }
+  if (q) {
+    options.where.AND.push({
+      title: { contains: q },
+    });
   }
 
   return options;
@@ -79,8 +76,8 @@ async function handleGET(req, res) {
 
   try {
     let posts = await prisma.post.findMany(options);
-    posts = posts.map(post => {
-      return { ...post, post_categories: post.post_categories.map(category => category.category.id) };
+    posts = posts.map((post) => {
+      return { ...post, post_categories: post.post_categories.map((category) => category.category.id) };
     });
     const countPosts = await prisma.post.count({ where: options.where });
 
@@ -107,7 +104,7 @@ async function handlePOST(req, res) {
     content: content,
     status: status,
     post_categories: {
-      createMany: { data: post_categories.map(item => ({ category_id: item })) }, // create row for every category in join table
+      createMany: { data: post_categories.map((item) => ({ category_id: item })) }, // create row for every category in join table
     },
   };
 
