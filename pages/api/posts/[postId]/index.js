@@ -1,6 +1,6 @@
-import prisma from '../../../lib/prisma';
-import SimpleCRUD from '../../../logic/SimpleCRUD';
-import { withAuthUser } from '../../../util/auth';
+import prisma from '../../../../lib/prisma';
+import SimpleCRUD from '../../../../logic/SimpleCRUD';
+import { withAuthUser } from '../../../../util/auth';
 
 // /api/posts/[postid]
 export default async function handler(req, res) {
