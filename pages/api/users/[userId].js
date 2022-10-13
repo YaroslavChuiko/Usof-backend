@@ -31,7 +31,8 @@ export default async function handler(req, res) {
 async function handleGET(userId, res) {
   try {
     const user = await SimpleCRUD.getOne(userId, prisma.user);
-
+    delete user.password;
+    
     res.status(200).json(user);
   } catch (error) {
     console.error(error);
