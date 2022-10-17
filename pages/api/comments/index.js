@@ -19,6 +19,7 @@ export default async function handler(req, res) {
 
 function getOptions(queryParams) {
   const options = {};
+  options.where = { AND: [] };
   const { _start, _end, _sort, _order, id, author_id, post_id, status, q } = queryParams;
 
   if (_start && _end) {
@@ -31,35 +32,37 @@ function getOptions(queryParams) {
     };
   }
   if (id) {
-    let idNum = Array.isArray(id) ? id.map(item => Number(item)) : [Number(id)];
+    let idNum = Array.isArray(id) ? id.map((item) => Number(item)) : [Number(id)];
 
-    options.where = {
-      id: { in: idNum }, //??
-    };
-  } else if (author_id) {
-    // getManyReference
-    options.where = {
+    options.where.AND.push({
+      id: { in: idNum },
+    });
+  }
+  if (author_id) {
+    options.where.AND.push({
       author_id: {
         equals: Number(author_id),
       },
-    };
-  } else if (post_id) {
-    // getManyReference
-    options.where = {
+    });
+  }
+  if (post_id) {
+    options.where.AND.push({
       post_id: {
         equals: Number(post_id),
       },
-    };
-  } else if (status) {
-    options.where = {
+    });
+  }
+  if (status) {
+    options.where.AND.push({
       status: {
         equals: status,
       },
-    };
-  } else if (q) {
-    options.where = {
+    });
+  }
+  if (q) {
+    options.where.AND.push({
       content: { contains: q },
-    };
+    });
   }
 
   return options;
