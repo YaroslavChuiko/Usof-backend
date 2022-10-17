@@ -1,5 +1,6 @@
-import prisma from '../../../lib/prisma';
-import SimpleCRUD from '../../../logic/SimpleCRUD';
+import prisma from '../../../../lib/prisma';
+import SimpleCRUD from '../../../../logic/SimpleCRUD';
+import { withAuthUser } from '../../../../util/auth';
 
 // /api/comments/[commentId]
 export default async function handler(req, res) {
