@@ -25,7 +25,7 @@ export default async function handler(req, res) {
 
 function getOptions(queryParams) {
   const options = {};
-  const { _start, _end, _sort, _order, id, author_id, target_post, target_comment, type } = queryParams;
+  const { _start, _end, _sort, _order, id, author_id, target_post, target_answer, type } = queryParams;
 
   if (_start && _end) {
     options.skip = Number(_start);
@@ -55,11 +55,11 @@ function getOptions(queryParams) {
         equals: Number(target_post),
       },
     };
-  } else if (target_comment) {
+  } else if (target_answer) {
     // getManyReference
     options.where = {
-      target_comment: {
-        equals: Number(target_comment),
+      target_answer: {
+        equals: Number(target_answer),
       },
     };
   } else if (type) {
@@ -91,7 +91,7 @@ async function handleGET(req, res) {
 
 // POST /api/likes
 async function handlePOST(req, res) {
-  const { author_id, target_post, target_comment, type } = req.body;
+  const { author_id, target_post, target_answer, type } = req.body;
 
   if (req.user.id != author_id) {
     return res.status(403).json({ message: "You don't have enough access rights" });
@@ -100,13 +100,13 @@ async function handlePOST(req, res) {
   const newLikeData = {
     author_id: author_id,
     target_post: target_post || null,
-    target_comment: target_comment || null,
+    target_answer: target_answer || null,
     type: type,
   };
 
   try {
-    if (target_post && target_comment) {
-      throw new Error('Only one of target_post or target_comment can be set');
+    if (target_post && target_answer) {
+      throw new Error('Only one of target_post or target_answer can be set');
     }
 
     if (author_id && target_post) {
@@ -124,12 +124,12 @@ async function handlePOST(req, res) {
       return res.status(200).json(newLike);
     }
 
-    if (author_id && target_comment) {
+    if (author_id && target_answer) {
       const newLike = await prisma.like_entity.upsert({
         where: {
-          author_id_target_comment: {
+          author_id_target_answer: {
             author_id: author_id,
-            target_comment: target_comment,
+            target_answer: target_answer,
           },
         },
         create: { ...newLikeData },
@@ -148,15 +148,15 @@ async function handlePOST(req, res) {
 
 // DELETE /api/likes
 async function handleDELETE(req, res) {
-  const { author_id, target_post, target_comment } = req.body;
+  const { author_id, target_post, target_answer } = req.body;
 
   if (req.user.id != author_id) {
     return res.status(403).json({ message: "You don't have enough access rights" });
   }
 
   try {
-    if (target_post && target_comment) {
-      throw new Error('Only one of target_post or target_comment can be set');
+    if (target_post && target_answer) {
+      throw new Error('Only one of target_post or target_answer can be set');
     }
 
     if (author_id && target_post) {
@@ -172,12 +172,12 @@ async function handleDELETE(req, res) {
       return res.status(200).json(deletedLike);
     }
 
-    if (author_id && target_comment) {
+    if (author_id && target_answer) {
       const deletedLike = await prisma.like_entity.delete({
         where: {
-          author_id_target_comment: {
+          author_id_target_answer: {
             author_id: Number(author_id),
-            target_comment: Number(target_comment),
+            target_answer: Number(target_answer),
           },
         },
       });
