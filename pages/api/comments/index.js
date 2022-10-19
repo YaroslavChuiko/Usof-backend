@@ -20,7 +20,7 @@ export default async function handler(req, res) {
 function getOptions(queryParams) {
   const options = {};
   options.where = { AND: [] };
-  const { _start, _end, _sort, _order, id, author_id, post_id, status, q } = queryParams;
+  const { _start, _end, _sort, _order, id, author_id, answer_id, status, q } = queryParams;
 
   if (_start && _end) {
     options.skip = Number(_start);
@@ -45,10 +45,10 @@ function getOptions(queryParams) {
       },
     });
   }
-  if (post_id) {
+  if (answer_id) {
     options.where.AND.push({
-      post_id: {
-        equals: Number(post_id),
+      answer_id: {
+        equals: Number(answer_id),
       },
     });
   }
@@ -86,10 +86,10 @@ async function handleGET(req, res) {
 
 // POST /api/comments/
 async function handlePOST(req, res) {
-  const { author_id, post_id, content, status } = req.body;
+  const { author_id, answer_id, content, status } = req.body;
   const newCommentData = {
     author_id,
-    post_id,
+    answer_id,
     content,
     status,
   };
