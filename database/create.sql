@@ -47,24 +47,35 @@ CREATE TABLE IF NOT EXISTS post (
   id INT AUTO_INCREMENT PRIMARY KEY,
   author_id INT NOT NULL,
     FOREIGN KEY (author_id) REFERENCES user(id) ON DELETE CASCADE,
-  title VARCHAR(100) NOT NULL, -- ?? size
+  title VARCHAR(100) NOT NULL, -- ?? size 150
   -- publish_date DATETIME DEFAULT NOW() NOT NULL, -- ??DATETIME https://dev.mysql.com/doc/refman/8.0/en/timestamp-initialization.html
   publish_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  content VARCHAR(5000), -- ?? type size
+  content VARCHAR(5000), -- ?? type size 10000
   status ENUM('active', 'inactive') DEFAULT 'active',
   rating INT DEFAULT 0 NOT NULL
   -- ??categories
 );
 
-CREATE TABLE IF NOT EXISTS comment (
+CREATE TABLE IF NOT EXISTS answer (
   id INT AUTO_INCREMENT PRIMARY KEY, -- ??
   author_id INT NOT NULL,
     FOREIGN KEY (author_id) REFERENCES user(id) ON DELETE CASCADE,
   post_id INT NOT NULL,
     FOREIGN KEY (post_id) REFERENCES post(id) ON DELETE CASCADE,
-  content VARCHAR(1000) NOT NULL, -- ??type size
+  content VARCHAR(1000) NOT NULL, -- ??type size 5000
   status ENUM('active', 'inactive') DEFAULT 'active',
   rating INT DEFAULT 0 NOT NULL,
+  publish_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS comment (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  author_id INT NOT NULL,
+    FOREIGN KEY (author_id) REFERENCES user(id) ON DELETE CASCADE,
+  answer_id INT NOT NULL,
+    FOREIGN KEY (answer_id) REFERENCES answer(id) ON DELETE CASCADE,
+  content VARCHAR(500) NOT NULL,
+  status ENUM('active', 'inactive') DEFAULT 'active',
   publish_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
@@ -88,13 +99,13 @@ CREATE TABLE IF NOT EXISTS like_entity (
     FOREIGN KEY (author_id) REFERENCES user(id) ON DELETE CASCADE,
   target_post INT NULL,
     FOREIGN KEY (target_post) REFERENCES post(id) ON DELETE CASCADE,
-  target_comment INT NULL,
-    FOREIGN KEY (target_comment) REFERENCES comment(id) ON DELETE CASCADE,
+  target_answer INT NULL,
+    FOREIGN KEY (target_answer) REFERENCES answer(id) ON DELETE CASCADE,
   CONSTRAINT uc_like_authorPost UNIQUE(author_id, target_post),
-  CONSTRAINT uc_like_authorComment UNIQUE(author_id, target_comment),
-  CONSTRAINT CK_target_postComment CHECK (
+  CONSTRAINT uc_like_authorAnswer UNIQUE(author_id, target_answer),
+  CONSTRAINT CK_target_postAnswer CHECK (
       CASE WHEN target_post IS NULL THEN 0 ELSE 1 END +
-      CASE WHEN target_comment  IS NULL THEN 0 ELSE 1 END = 1
+      CASE WHEN target_answer  IS NULL THEN 0 ELSE 1 END = 1
     ),
   publish_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
   type ENUM('like', 'dislike') DEFAULT 'like' NOT NULL
@@ -105,7 +116,7 @@ CREATE TRIGGER IF NOT EXISTS after_like_insert
 AFTER INSERT
 ON like_entity FOR EACH ROW
 BEGIN
-  DECLARE userRating, postRating, commentRating, ratingChange, authorId INT;
+  DECLARE userRating, postRating, answerRating, ratingChange, authorId INT;
 
   CASE NEW.type
     WHEN 'like' THEN
@@ -122,12 +133,12 @@ BEGIN
     WHERE
       id = NEW.target_post;
   ELSE
-    SET authorId = (SELECT author_id FROM comment WHERE id = NEW.target_comment);
-    SET commentRating = (SELECT rating FROM comment WHERE id = NEW.target_comment);
-    UPDATE comment
-    SET rating = commentRating + ratingChange
+    SET authorId = (SELECT author_id FROM answer WHERE id = NEW.target_answer);
+    SET answerRating = (SELECT rating FROM answer WHERE id = NEW.target_answer);
+    UPDATE answer
+    SET rating = answerRating + ratingChange
     WHERE
-      id = NEW.target_comment;
+      id = NEW.target_answer;
   END IF;
   
   SET userRating = (SELECT rating FROM user WHERE id = authorId);
@@ -146,7 +157,7 @@ CREATE TRIGGER IF NOT EXISTS after_like_update
 AFTER UPDATE
 ON like_entity FOR EACH ROW
 BEGIN
-  DECLARE userRating, postRating, commentRating, ratingChange, authorId INT;
+  DECLARE userRating, postRating, answerRating, ratingChange, authorId INT;
   IF OLD.type != NEW.type THEN
     CASE NEW.type
       WHEN 'like' THEN
@@ -163,12 +174,12 @@ BEGIN
       WHERE
         id = NEW.target_post;
     ELSE
-      SET authorId = (SELECT author_id FROM comment WHERE id = NEW.target_comment);
-      SET commentRating = (SELECT rating FROM comment WHERE id = NEW.target_comment);
-      UPDATE comment
-      SET rating = commentRating + ratingChange
+      SET authorId = (SELECT author_id FROM answer WHERE id = NEW.target_answer);
+      SET answerRating = (SELECT rating FROM answer WHERE id = NEW.target_answer);
+      UPDATE answer
+      SET rating = answerRating + ratingChange
       WHERE
-        id = NEW.target_comment;
+        id = NEW.target_answer;
     END IF;
     
     SET userRating = (SELECT rating FROM user WHERE id = authorId);
@@ -187,7 +198,7 @@ CREATE TRIGGER IF NOT EXISTS after_like_delete
 AFTER DELETE
 ON like_entity FOR EACH ROW
 BEGIN
-  DECLARE userRating, postRating, commentRating, ratingChange, authorId INT;
+  DECLARE userRating, postRating, answerRating, ratingChange, authorId INT;
   
   CASE OLD.type
     WHEN 'like' THEN
@@ -204,12 +215,12 @@ BEGIN
     WHERE
       id = OLD.target_post;
   ELSE
-    SET authorId = (SELECT author_id FROM comment WHERE id = OLD.target_comment);
-    SET commentRating = (SELECT rating FROM comment WHERE id = OLD.target_comment);
-    UPDATE comment
-    SET rating = commentRating + ratingChange
+    SET authorId = (SELECT author_id FROM answer WHERE id = OLD.target_answer);
+    SET answerRating = (SELECT rating FROM answer WHERE id = OLD.target_answer);
+    UPDATE answer
+    SET rating = answerRating + ratingChange
     WHERE
-      id = OLD.target_comment;
+      id = OLD.target_answer;
   END IF;
   
   SET userRating = (SELECT rating FROM user WHERE id = authorId);
