@@ -14,37 +14,21 @@ model category {
   post_categories post_categories[]
 }
 
-model comment {
-  id           Int             @id @default(autoincrement())
-  author_id    Int
-  post_id      Int
-  content      String          @db.VarChar(1000)
-  status       comment_status? @default(active)
-  rating       Int             @default(0)
-  publish_date DateTime        @default(now()) @db.Timestamp(0)
-  user         user            @relation(fields: [author_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "comment_ibfk_1")
-  post         post            @relation(fields: [post_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "comment_ibfk_2")
-  like_entity  like_entity[]
-
-  @@index([author_id], map: "author_id")
-  @@index([post_id], map: "post_id")
-}
-
 model like_entity {
-  id             Int              @id @default(autoincrement())
-  author_id      Int
-  target_post    Int?
-  target_comment Int?
-  publish_date   DateTime         @default(now()) @db.Timestamp(0)
-  type           like_entity_type @default(like)
-  user           user             @relation(fields: [author_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "like_entity_ibfk_1")
-  post           post?            @relation(fields: [target_post], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "like_entity_ibfk_2")
-  comment        comment?         @relation(fields: [target_comment], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "like_entity_ibfk_3")
+  id            Int              @id @default(autoincrement())
+  author_id     Int
+  target_post   Int?
+  target_answer Int?
+  publish_date  DateTime         @default(now()) @db.Timestamp(0)
+  type          like_entity_type @default(like)
+  user          user             @relation(fields: [author_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "like_entity_ibfk_1")
+  post          post?            @relation(fields: [target_post], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "like_entity_ibfk_2")
+  answer        answer?          @relation(fields: [target_answer], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "like_entity_ibfk_3")
 
-  @@unique([author_id, target_comment], map: "uc_like_authorComment")
   @@unique([author_id, target_post], map: "uc_like_authorPost")
+  @@unique([author_id, target_answer], map: "uc_like_authorAnswer")
   @@index([target_post], map: "target_post")
-  @@index([target_comment], map: "target_comment")
+  @@index([target_answer], map: "target_answer")
 }
 
 model post {
@@ -56,7 +40,7 @@ model post {
   status          post_status?      @default(active)
   rating          Int               @default(0)
   user            user              @relation(fields: [author_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "post_ibfk_1")
-  comment         comment[]
+  answer          answer[]
   like_entity     like_entity[]
   post_categories post_categories[]
 
@@ -83,6 +67,7 @@ model user {
   profile_picture String          @db.VarChar(255)
   rating          Int             @default(0)
   role            user_role       @default(user)
+  answer          answer[]
   comment         comment[]
   email_token     email_token?
   like_entity     like_entity[]
@@ -104,6 +89,37 @@ model password_token {
   user       user     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "password_token_ibfk_1")
 }
 
+model answer {
+  id           Int            @id @default(autoincrement())
+  author_id    Int
+  post_id      Int
+  content      String         @db.VarChar(1000)
+  status       answer_status? @default(active)
+  rating       Int            @default(0)
+  publish_date DateTime       @default(now()) @db.Timestamp(0)
+  user         user           @relation(fields: [author_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "answer_ibfk_1")
+  post         post           @relation(fields: [post_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "answer_ibfk_2")
+  comment      comment[]
+  like_entity  like_entity[]
+
+  @@index([author_id], map: "author_id")
+  @@index([post_id], map: "post_id")
+}
+
+model comment {
+  id           Int             @id @default(autoincrement())
+  author_id    Int
+  answer_id    Int
+  content      String          @db.VarChar(500)
+  status       comment_status? @default(active)
+  publish_date DateTime        @default(now()) @db.Timestamp(0)
+  user         user            @relation(fields: [author_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "comment_ibfk_1")
+  answer       answer          @relation(fields: [answer_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "comment_ibfk_2")
+
+  @@index([answer_id], map: "answer_id")
+  @@index([author_id], map: "author_id")
+}
+
 enum post_status {
   active
   inactive
@@ -117,6 +133,11 @@ enum like_entity_type {
 enum user_role {
   user
   admin
+}
+
+enum answer_status {
+  active
+  inactive
 }
 
 enum comment_status {
