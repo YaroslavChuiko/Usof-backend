@@ -2,6 +2,7 @@ import restProvider from 'ra-data-json-server';
 import { Admin, Resource } from 'react-admin';
 import authProvider from './authProvider';
 import { CategoryCreate, CategoryEdit, CategoryList, CategoryShow } from './categories';
+import { AnswerCreate, AnswerEdit, AnswerList, AnswerShow } from './answers';
 import { CommentCreate, CommentEdit, CommentList, CommentShow } from './comments';
 import { PostCreate, PostEdit, PostList, PostShow } from './posts';
 import { UserCreate, UserEdit, UserList, UserShow } from './users';
@@ -23,6 +24,13 @@ const App = () => (
       show={PostShow}
       edit={PostEdit}
       create={PostCreate}
+    />
+    <Resource
+      name="answers"
+      list={AnswerList}
+      show={AnswerShow}
+      edit={AnswerEdit}
+      create={AnswerCreate}
     />
     <Resource
       name="comments"

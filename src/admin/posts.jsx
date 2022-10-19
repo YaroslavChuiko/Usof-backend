@@ -123,8 +123,8 @@ export const PostShow = props => (
           <RichTextField source="content" />
         </SimpleShowLayout>
       </Tab>
-      <Tab label="Comments" path="comments">
-        <ReferenceManyField reference="comments" target="post_id" pagination={<Pagination />} label={false}>
+      <Tab label="Answers" path="answers">
+        <ReferenceManyField reference="answers" target="post_id" pagination={<Pagination />} label={false}>
           <Datagrid rowClick="show">
             <TextField source="id" />
             <ReferenceField source="post_id" reference="posts" />

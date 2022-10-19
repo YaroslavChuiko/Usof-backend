@@ -115,8 +115,8 @@ export const UserShow = props => (
           </Datagrid>
         </ReferenceManyField>
       </Tab>
-      <Tab label="Comments" path="comments">
-        <ReferenceManyField reference="comments" target="author_id" pagination={<Pagination />} label={false}>
+      <Tab label="Answers" path="answers">
+        <ReferenceManyField reference="answers" target="author_id" pagination={<Pagination />} label={false}>
           <Datagrid rowClick="show">
             <TextField source="id" />
             <ReferenceField source="post_id" reference="posts" />
@@ -130,6 +130,20 @@ export const UserShow = props => (
           </Datagrid>
         </ReferenceManyField>
       </Tab>
+      <Tab label="Comments" path="comments">
+        <ReferenceManyField reference="comments" target="author_id" pagination={<Pagination />} label={false}>
+          <Datagrid rowClick="show">
+            <TextField source="id" />
+            <ReferenceField source="answer_id" reference="answers" />
+            <ReferenceField label="Author" source="author_id" reference="users">
+              <TextField source="login" />
+            </ReferenceField>
+            <TextField source="status" />
+            <TextField source="content" />
+            <EditButton />
+          </Datagrid>
+        </ReferenceManyField>
+      </Tab>
       <Tab label="Likes" path="likes">
         <ReferenceManyField reference="likes" target="author_id" pagination={<Pagination />} label={false}>
           <Datagrid hover={false}>
@@ -138,7 +152,7 @@ export const UserShow = props => (
               <TextField source="login" />
             </ReferenceField>
             <ReferenceField label="Post" source="target_post" emptyText="null" reference="posts"/>
-            <ReferenceField label="Comment" source="target_comment" emptyText="null" reference="comments" />
+            <ReferenceField label="Comment" source="target_answer" emptyText="null" reference="answers" />
             <DateField label="Publication date" source="publish_date" locales="uk-UA" showTime />
             <TextField source="type" />
           </Datagrid>
