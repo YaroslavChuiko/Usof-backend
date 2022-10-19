@@ -34,7 +34,7 @@ const commentFilters = [
   <ReferenceInput label="Author" source="author_id" reference="users">
     <AutocompleteInput optionText="login" />
   </ReferenceInput>,
-  <ReferenceInput label="Post" source="post_id" reference="posts">
+  <ReferenceInput label="Answer" source="answer_id" reference="answers">
     <AutocompleteInput optionText="title" />
   </ReferenceInput>,
   <SelectInput source="status" optionValue="status" optionText="label" choices={statuses} />,
@@ -44,12 +44,12 @@ export const CommentList = props => (
   <List {...props} filters={commentFilters}>
     <Datagrid rowClick="show">
       <TextField source="id" />
-      <ReferenceField source="post_id" reference="posts" />
+      <ReferenceField source="answer_id" reference="answers" />
       <ReferenceField label="Author" source="author_id" reference="users">
         <TextField source="login" />
       </ReferenceField>
       <TextField source="status" />
-      <NumberField source="rating" />
+      {/* <NumberField source="rating" /> */}
       <TextField source="content" />
       <EditButton />
     </Datagrid>
@@ -81,7 +81,7 @@ export const CommentCreate = () => (
       <ReferenceInput label="Author" source="author_id" reference="users">
         <AutocompleteInput optionText="login" validate={required()} />
       </ReferenceInput>
-      <ReferenceInput label="Post" source="post_id" reference="posts">
+      <ReferenceInput label="Answer" source="answer_id" reference="answers">
         <AutocompleteInput optionText="title" validate={required()} />
       </ReferenceInput>
       <SelectInput source="status" optionValue="status" optionText="label" choices={statuses} validate={required()} />
@@ -96,7 +96,7 @@ export const CommentShow = props => (
       <Tab label="Summary">
         <SimpleShowLayout>
           <NumberField source="id" />
-          <ReferenceField label="Post" source="post_id" reference="posts">
+          <ReferenceField label="Answer" source="answer_id" reference="answers">
             <TextField source="id" />
           </ReferenceField>
           <ReferenceField label="Author" source="author_id" reference="users">
@@ -104,12 +104,12 @@ export const CommentShow = props => (
           </ReferenceField>
           <DateField label="Publication date" source="publish_date" />
           <TextField source="content" />
-          <NumberField source="rating" />
+          {/* <NumberField source="rating" /> */}
           <TextField source="status" />
         </SimpleShowLayout>
       </Tab>
       <Tab label="Likes" path="likes">
-        <ReferenceManyField reference="likes" target="target_comment" pagination={<Pagination />} label={false}>
+        <ReferenceManyField reference="likes" target="target_answer" pagination={<Pagination />} label={false}>
           <Datagrid hover={false}>
             <TextField source="id" />
             <ReferenceField label="Author" source="author_id" reference="users">
