@@ -89,7 +89,7 @@ async function handlePOST(req, res) {
   const { author_id, post_id, content, status } = req.body;
   const newAnswerData = {
     author_id,
-    post_id,
+    post_id: Number(post_id),
     content,
     status,
   };
