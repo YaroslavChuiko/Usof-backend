@@ -43,9 +43,10 @@ async function login(req, res) {
       login: user.login,
       fullName: user.full_name,
       email: user.email,
-      active: user.active,
+      emailVerified: user.email_verified,
       avatar: user.profile_picture,
       role: user.role,
+      rating: user.rating,
     };
     result.user = userData;
     const token = generateAccessToken(userData);
