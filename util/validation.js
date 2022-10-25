@@ -152,3 +152,21 @@ export function checkUser(user, password) {
 
   return result;
 }
+
+export function validateUserDataToUpdate(firstName, lastName, login) {
+  const result = {
+    success: true,
+    firstName: validateName(firstName),
+    lastName: validateName(lastName),
+    login: validateLogin(login),
+  };
+
+  if (result.firstName || result.lastName || result.login) {
+    result.success = false;
+  }
+
+  return result;
+};
+
+
+
