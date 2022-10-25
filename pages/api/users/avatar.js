@@ -1,11 +1,12 @@
+import Cookies from 'cookies';
 import formidable from 'formidable';
 import fs from 'fs';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import prisma from '../../../lib/prisma';
 import SimpleCRUD from '../../../logic/SimpleCRUD';
-import { withAuthUser } from '../../../util/auth';
-import { DEFAULT_AVATAR_PATH, UPLOADS_PATH } from '../../../util/const';
+import { generateAccessToken, withAuthUser } from '../../../util/auth';
+import { DEFAULT_AVATAR_PATH, TOKEN_EXPIRE_SEC, UPLOADS_PATH } from '../../../util/const';
 
 export const config = {
   api: {
@@ -43,6 +44,7 @@ export default async function handler(req, res) {
 
 // PATCH /api/users/avatar
 async function handlePATCH(req, res) {
+  const cookies = new Cookies(req, res);
   const form = new formidable.IncomingForm(options);
 
   form.parse(req, async function (err, fields, files) {
@@ -65,7 +67,26 @@ async function handlePATCH(req, res) {
 
       deleteOldAvatar(user.profile_picture);
 
-      return res.status(200).json({ success: true });
+      const userData = {
+        id: updatedUser.id,
+        login: updatedUser.login,
+        fullName: updatedUser.full_name,
+        email: updatedUser.email,
+        emailVerified: updatedUser.email_verified,
+        avatar: updatedUser.profile_picture,
+        role: updatedUser.role,
+        rating: updatedUser.rating,
+      };
+
+      //refresh token
+      const token = generateAccessToken(userData);
+      cookies.set('token', token, {
+        sameSite: 'lax',
+        maxAge: TOKEN_EXPIRE_SEC * 1000,
+        httpOnly: true,
+      });
+
+      return res.status(200).json({ success: true, user: userData });
     } catch (error) {
       console.log(error);
       return res.status(500).send('UnknownError');
