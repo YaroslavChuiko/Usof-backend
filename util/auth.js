@@ -36,6 +36,24 @@ export function verifyAccessToken(token) {
   return result;
 }
 
+export function getUerData(req, res) {
+  const cookies = new Cookies(req, res);
+  const token = cookies.get('token');
+  let result = {
+    success: true,
+    message: '',
+    decoded: null,
+  }
+
+  result = verifyAccessToken(token);
+
+  if(result.success) {
+    return result.decoded;
+  }
+
+  return null;
+}
+
 export function withAuthUser(req, res) {
   const cookies = new Cookies(req, res);
   const token = cookies.get('token');
