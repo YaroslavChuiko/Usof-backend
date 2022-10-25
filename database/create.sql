@@ -12,7 +12,8 @@ CREATE TABLE IF NOT EXISTS user (
   password CHAR(60) NOT NULL,
   full_name VARCHAR(50) NOT NULL,
   email VARCHAR(255) UNIQUE NOT NULL,
-  active BOOLEAN DEFAULT false,
+  -- active BOOLEAN DEFAULT false,
+  email_verified BOOLEAN DEFAULT false,
   profile_picture VARCHAR(255) NOT NULL,
   rating INT DEFAULT 0 NOT NULL,
   role ENUM('user', 'admin') DEFAULT 'user' NOT NULL
