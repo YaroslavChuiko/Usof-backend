@@ -24,7 +24,7 @@ async function handlePOST(req, res) {
     message: '',
   };
 
-  if (userData.active) {
+  if (userData.email_verified) {
     result.success = true;
     result.message = 'You already verify your email';
     return res.status(200).json(result);

@@ -39,7 +39,7 @@ async function handlePOST(req, res) {
         id: Number(userId),
       },
       data: {
-        active: true,
+        email_verified: true,
         email_token: {
           delete: true, // Update an existing User record by deleting the token record it's connected to
         },
