@@ -63,7 +63,7 @@ model user {
   password        String          @db.Char(60)
   full_name       String          @db.VarChar(50)
   email           String          @unique(map: "email") @db.VarChar(255)
-  active          Boolean?        @default(false)
+  email_verified  Boolean?        @default(false)
   profile_picture String          @db.VarChar(255)
   rating          Int             @default(0)
   role            user_role       @default(user)
