@@ -1,10 +1,14 @@
 import prisma from '../../../lib/prisma';
 import SimpleCRUD from '../../../logic/SimpleCRUD';
-import { withAuthUser } from '../../../util/auth';
+import { getUserData, withAuthUser } from '../../../util/auth';
 
 // /api/comments
 export default async function handler(req, res) {
   if (req.method === 'GET') {
+    const result = getUserData(req, res);
+    // if (!result.success) return;
+    req.user = result;
+
     handleGET(req, res);
   } else if (req.method === 'POST') {
     const result = withAuthUser(req, res);
@@ -17,7 +21,7 @@ export default async function handler(req, res) {
   }
 }
 
-function getOptions(queryParams) {
+function getOptions(queryParams, user) {
   const options = {};
   options.where = { AND: [] };
   const { _start, _end, _sort, _order, id, author_id, answer_id, status, q } = queryParams;
@@ -52,7 +56,28 @@ function getOptions(queryParams) {
       },
     });
   }
-  if (status) {
+  if (!user) {
+    options.where.AND.push({
+      status: {
+        equals: 'active',
+      },
+    });
+  }
+  else if ( user.role && status) { //add status
+    options.where.AND.push({OR: [
+      {
+        status: {
+          equals: status,
+        },
+      },
+      {
+        author_id: {
+          equals: Number(user.id),
+        },
+      },
+    ]});
+  }
+  else if (status) {
     options.where.AND.push({
       status: {
         equals: status,
@@ -70,7 +95,7 @@ function getOptions(queryParams) {
 
 // GET /api/comments/
 async function handleGET(req, res) {
-  const options = getOptions(req.query);
+  const options = getOptions(req.query, req?.user);
 
   try {
     const [comments, countComments] = await SimpleCRUD.getList(options, prisma.comment);
