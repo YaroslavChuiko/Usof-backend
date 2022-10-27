@@ -1,15 +1,11 @@
 import bcrypt from 'bcrypt';
 import prisma from '../../../../lib/prisma';
-import { withAuthUser } from '../../../../util/auth';
 import { SAULT_ROUNDS } from '../../../../util/const';
+import { validatePassword } from '../../../../util/validation';
 
 // /api/auth/password-reset/[confirmToken]
 export default async function handler(req, res) {
   if (req.method === 'POST') {
-    const result = withAuthUser(req, res);
-    if (!result.success) return;
-    req.user = result.decoded;
-
     handlePOST(req, res);
   } else {
     res.status(405).end(`The HTTP ${req.method} method is not supported at this route.`);
@@ -18,7 +14,6 @@ export default async function handler(req, res) {
 
 // POST /api/auth/password-reset/[confirmToken]
 async function handlePOST(req, res) {
-  const userData = req.user;
   const { confirmToken } = req.query;
   const { newPassword } = req.body;
   const result = {
@@ -27,9 +22,8 @@ async function handlePOST(req, res) {
   };
 
   try {
-    const userToken = await prisma.password_token.findFirst({
+    const userToken = await prisma.password_token.findUnique({
       where: {
-        user_id: Number(userData.id),
         token: confirmToken,
       },
     });
@@ -40,11 +34,17 @@ async function handlePOST(req, res) {
       return res.status(200).json(result);
     }
 
-    //?? validate password
+    const validationMessage = validatePassword(newPassword);
+    if (validationMessage) {
+      result.success = false;
+      result.message = validationMessage;
+      return res.status(400).json(result);
+    }
+
     const hash = bcrypt.hashSync(newPassword, SAULT_ROUNDS);
     const updatedUser = await prisma.user.update({
       where: {
-        id: Number(userData.id),
+        id: Number(userToken.user_id),
       },
       data: {
         password: hash,
@@ -55,7 +55,7 @@ async function handlePOST(req, res) {
     });
 
     result.success = true;
-    result.message = 'Your password has been updated successfully!';
+    result.message = 'Your password has been reset successfully!';
     res.status(200).json(result);
   } catch (error) {
     console.log(error);
