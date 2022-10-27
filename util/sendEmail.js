@@ -40,6 +40,6 @@ export async function sendEmailVerify(userId, token, email) {
 }
 
 export async function sendEmailPasswordReset(token, email) {
-  const html = `<p>You requested for reset password, kindly use this <a href="http://front-end_base_url/reset-password/${token}">link</a> to reset your password</p>`;
+  const html = `<p>You requested for reset password, kindly use this <a href="http://localhost:8080/reset-password/${token}">link</a> to reset your password</p>`;
   await sendEmail(email, 'Reset Password Link - siteName.com', '', html);
 }
