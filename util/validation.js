@@ -23,6 +23,7 @@ export function validateData(userData) {
     result.errors.lastName = lastNameErrorMsg ? lastNameErrorMsg : null;
     result.errors.email = emailErrorMsg ? emailErrorMsg : null;
     result.errors.password = passwordErrorMsg ? passwordErrorMsg : null;
+    result.errors.repassword = repasswordErrorMsg ? repasswordErrorMsg : null;
   }
 
   return result;
@@ -49,7 +50,7 @@ function validateName(name) {
   return '';
 }
 
-function validatePassword(password) {
+export function validatePassword(password) {
   const MIN_LENGTH = 4;
   const MAX_LENGTH = 16;
   if (password.length < MIN_LENGTH) return `Length must be at least ${MIN_LENGTH} symbols`;
@@ -63,7 +64,7 @@ function validatePassword(password) {
 }
 
 function comparePasswords(password, repassword) {
-  if (password !== repassword) return 'Passwords do not match';
+  if (password !== repassword || !repassword) return 'Passwords do not match';
 
   return '';
 }
