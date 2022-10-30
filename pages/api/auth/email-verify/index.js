@@ -2,7 +2,7 @@ import prisma from '../../../../lib/prisma';
 import { generateUniqueToken, withAuthUser } from '../../../../util/auth';
 import { sendEmailVerify } from '../../../../util/sendEmail';
 
-// /api/users/verify - send a verify link to user email
+// /api/auth/email-verify - send a verify link to user email
 export default async function handler(req, res) {
   if (req.method === 'POST') {
     const result = withAuthUser(req, res);
@@ -15,7 +15,7 @@ export default async function handler(req, res) {
   }
 }
 
-//POST /api/users/verify
+//POST /api/auth/email-verify
 async function handlePOST(req, res) {
   const userData = req.user;
   
@@ -46,7 +46,7 @@ async function handlePOST(req, res) {
 
     const token = generateUniqueToken();
 
-    await sendEmailVerify(userData.id, token, userData.email);
+    await sendEmailVerify(token, userData.email);
 
     const updatedUser = await prisma.user.update({
       where: {

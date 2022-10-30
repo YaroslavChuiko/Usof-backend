@@ -1,20 +1,26 @@
+import Cookies from 'cookies';
 import prisma from '../../../../lib/prisma';
+import { generateAccessToken, withAuthUser } from '../../../../util/auth';
+import { TOKEN_EXPIRE_SEC } from '../../../../util/const';
 
-// /api/users/verify/[userId]/[token] - verify user email with token
+// /api/auth/email-verify/[token] - verify user email with token
 export default async function handler(req, res) {
   if (req.method === 'POST') {
+    const result = withAuthUser(req, res);
+    if (!result.success) return;
+    req.user = result.decoded;
+
     handlePOST(req, res);
   } else {
     res.status(405).end(`The HTTP ${req.method} method is not supported at this route.`);
   }
 }
 
-// POST /api/users/verify/[userId]/[token]
+// POST /api/auth/email-verify/[token]
 async function handlePOST(req, res) {
-  // const cookies = new Cookies(req, res);
-  //? mb get userId from jwt token instead url
-  const { slug } = req.query;
-  const [userId, token] = slug;
+  const cookies = new Cookies(req, res);
+  const { token } = req.query;
+  const userId = req.user.id;
   const result = {
     success: true,
     message: '',
@@ -46,13 +52,24 @@ async function handlePOST(req, res) {
       },
     });
 
-    // ! after activate email update jwt token payload active to true
-    // const token = generateAccessToken(tokenPayload);
+    const userData = {
+      id: updatedUser.id,
+      login: updatedUser.login,
+      fullName: updatedUser.full_name,
+      email: updatedUser.email,
+      emailVerified: updatedUser.email_verified,
+      avatar: updatedUser.avatar,
+      role: updatedUser.role,
+      rating: updatedUser.rating,
+    };
 
-    // cookies.set('token', token, {
-    //   sameSite: 'lax',
-    //   maxAge: TOKEN_EXPIRE_SEC * 1000,
-    // });
+    //refresh token
+    const newToken = generateAccessToken(userData);
+    cookies.set('token', newToken, {
+      sameSite: 'lax',
+      maxAge: TOKEN_EXPIRE_SEC * 1000,
+      httpOnly: true,
+    });
 
     result.success = true;
     result.message = 'Your email verified sucessfully!';
