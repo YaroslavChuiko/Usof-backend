@@ -36,7 +36,7 @@ export function verifyAccessToken(token) {
   return result;
 }
 
-export function getUerData(req, res) {
+export function getUserData(req, res) {
   const cookies = new Cookies(req, res);
   const token = cookies.get('token');
   let result = {
