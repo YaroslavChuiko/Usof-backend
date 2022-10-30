@@ -6,7 +6,6 @@ import { getUserData, withAuthUser } from '../../../util/auth';
 export default async function handler(req, res) {
   if (req.method === 'GET') {
     const result = getUserData(req, res);
-    // if (!result.success) return;
     req.user = result;
 
     handleGET(req, res);
@@ -63,7 +62,7 @@ function getOptions(queryParams, user) {
       },
     });
   }
-  else if ( user.role && status) { //add status
+  else if ( user?.role && status) { //add status
     options.where.AND.push({OR: [
       {
         status: {
