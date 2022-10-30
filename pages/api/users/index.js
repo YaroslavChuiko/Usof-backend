@@ -102,7 +102,7 @@ async function handlePOST(data, res) {
 
   try {
     const newUser = await SimpleCRUD.create(newUserData, prisma.user);
-    await sendEmailVerify(newUser.id, token, newUser.email);
+    await sendEmailVerify(token, newUser.email);
 
     res.status(201).json(newUser);
   } catch (error) {
