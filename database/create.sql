@@ -3,16 +3,12 @@ CREATE DATABASE IF NOT EXISTS usof;
 SET GLOBAL event_scheduler = ON;
 USE usof;
 
--- how to save password
--- https://stackoverflow.com/questions/247304/what-data-type-to-use-for-hashed-password-field-and-what-length 
-
 CREATE TABLE IF NOT EXISTS user (
   id INT AUTO_INCREMENT PRIMARY KEY,
   login VARCHAR(30) UNIQUE NOT NULL,
   password CHAR(60) NOT NULL,
   full_name VARCHAR(50) NOT NULL,
   email VARCHAR(255) UNIQUE NOT NULL,
-  -- active BOOLEAN DEFAULT false,
   email_verified BOOLEAN DEFAULT false,
   profile_picture VARCHAR(255) NOT NULL,
   rating INT DEFAULT 0 NOT NULL,
@@ -26,10 +22,10 @@ CREATE TABLE IF NOT EXISTS password_token (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
-CREATE EVENT password_token_cleaning ON SCHEDULE EVERY 30 MINUTE ENABLE
+CREATE EVENT password_token_cleaning ON SCHEDULE EVERY 2 DAY ENABLE
   DO 
   DELETE FROM password_token
-  WHERE created_at < CURRENT_TIMESTAMP - INTERVAL 30 MINUTE;
+  WHERE created_at < CURRENT_TIMESTAMP - INTERVAL 2 DAY;
 
 
 CREATE TABLE IF NOT EXISTS email_token (
@@ -48,22 +44,20 @@ CREATE TABLE IF NOT EXISTS post (
   id INT AUTO_INCREMENT PRIMARY KEY,
   author_id INT NOT NULL,
     FOREIGN KEY (author_id) REFERENCES user(id) ON DELETE CASCADE,
-  title VARCHAR(100) NOT NULL, -- ?? size 150
-  -- publish_date DATETIME DEFAULT NOW() NOT NULL, -- ??DATETIME https://dev.mysql.com/doc/refman/8.0/en/timestamp-initialization.html
+  title VARCHAR(150) NOT NULL,
   publish_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  content VARCHAR(5000), -- ?? type size 10000
+  content VARCHAR(10000),
   status ENUM('active', 'inactive') DEFAULT 'active',
   rating INT DEFAULT 0 NOT NULL
-  -- ??categories
 );
 
 CREATE TABLE IF NOT EXISTS answer (
-  id INT AUTO_INCREMENT PRIMARY KEY, -- ??
+  id INT AUTO_INCREMENT PRIMARY KEY,
   author_id INT NOT NULL,
     FOREIGN KEY (author_id) REFERENCES user(id) ON DELETE CASCADE,
   post_id INT NOT NULL,
     FOREIGN KEY (post_id) REFERENCES post(id) ON DELETE CASCADE,
-  content VARCHAR(1000) NOT NULL, -- ??type size 5000
+  content VARCHAR(5000) NOT NULL,
   status ENUM('active', 'inactive') DEFAULT 'active',
   rating INT DEFAULT 0 NOT NULL,
   publish_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
@@ -83,13 +77,13 @@ CREATE TABLE IF NOT EXISTS comment (
 CREATE TABLE IF NOT EXISTS category (
   id INT AUTO_INCREMENT PRIMARY KEY,
   title VARCHAR(30) UNIQUE NOT NULL,
-  description VARCHAR(500) DEFAULT '' NOT NULL -- ?? size
+  description VARCHAR(500) DEFAULT '' NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS post_categories (
   post_id INT NOT NULL,
   category_id INT NOT NULL,
-  PRIMARY KEY (post_id, category_id), -- ?? 
+  PRIMARY KEY (post_id, category_id),
   FOREIGN KEY (post_id) REFERENCES post(id) ON DELETE CASCADE,
   FOREIGN KEY (category_id) REFERENCES category(id) ON DELETE CASCADE
 );
